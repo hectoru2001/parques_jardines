@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
+</div>
+<div class="container mt-4">
+
+    <!-- Encabezado -->
+    <h2 class="text-center mb-4 p-2 rounded shadow-sm" 
+        style="background-color: #831f46; color: white; font-weight: bold;">
+        CUADRILLA DE FUENTES
+    </h2>
+
+    <form method="post" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        <!-- Datos Generales -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Datos Generales
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.dia.label_tag }}
+                    {{ form.dia }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.fecha.label_tag }}
+                    {{ form.fecha }}
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="row g-4">
+            <!-- Primer fieldset -->
+            <fieldset class="border rounded p-3 col-md-6">
+                <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                        style="background-color: #831f46; font-size: 1rem;">
+                    Tipo de Área Atendida
+                </legend>
+                <div class="mb-3">
+                    {{ form.coordinador.label_tag }}
+                    {{ form.coordinador }}
+                </div>
+                <div class="mb-3">
+                    {{ form.encargado.label_tag }}
+                    {{ form.encargado }}
+                </div>
+            </fieldset>
+
+            <!-- Segundo fieldset -->
+            <fieldset class="border rounded p-3 col-md-6">
+                <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                        style="background-color: #831f46; font-size: 1rem;">
+                    Reporte
+                </legend>
+                <div class="mb-3">
+                    {% if siguiente_id %}
+                        <label class="form-label">Número de Reporte</label>
+                        <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
+                    {% else %}
+                        <label class="form-label">Número de Reporte</label>
+                        <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
+                    {% endif %}
+                </div>
+                <div class="mb-3">{{ form.trabajo_realizado.label_tag }} {{ form.trabajo_realizado }}</div>
+                <div class="mb-3">{{ form.pendientes.label_tag }} {{ form.pendientes }}</div>
+            </fieldset>
+        </div>
+
+        <!-- Áreas Atendidas -->
+        <fieldset class="border rounded p-3 my-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Actividades Realizadas
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-3">{{ form.superficie_atendida_m2.label_tag }} {{ form.superficie_atendida_m2 }}</div>
+                <div class="col-md-3">{{ form.limpieza_papeleo_m2.label_tag }} {{ form.limpieza_papeleo_m2 }}</div>
+                <div class="col-md-6">{{ form.reparacion_tuberia.label_tag }} {{ form.reparacion_tuberia }}</div>
+                <div class="col-md-3">{{ form.basura_kg.label_tag }} {{ form.basura_kg }}</div>
+                <div class="col-md-3">{{ form.reparacion_bomba.label_tag }} {{ form.reparacion_bomba }}</div>
+                <div class="col-md-3">{{ form.instalacion_bomba.label_tag }} {{ form.instalacion_bomba }}</div>
+                <div class="col-md-3">{{ form.personal_trabajo.label_tag }} {{ form.personal_trabajo }}</div>
+            </div>
+        </fieldset>
+
+        <!-- Ubicación -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Ubicación del Área Trabajada
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-4">{{ form.colonia.label_tag }} {{ form.colonia }}</div>
+                <div class="col-md-4">{{ form.calle1.label_tag }} {{ form.calle1 }}</div>
+                <div class="col-md-4">{{ form.calle2.label_tag }} {{ form.calle2 }}</div>
+            </div>
+            <div class="row g-3 align-items-center my-2">
+                <div class="col-md-2">{{ form.observaciones.label_tag }}</div>
+                <div class="col-md-10">{{ form.observaciones }}</div>
+            </div>
+        </fieldset>
+
+        <!-- Botón -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-lg px-5" 
+                    style="background-color: #831f46; color: white; font-weight: bold;">
+                Guardar Reporte
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

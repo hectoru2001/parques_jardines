@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
+</div>
+<div class="container mt-4">
+
+    <!-- Encabezado -->
+    <h2 class="text-center mb-4 p-2 rounded shadow-sm" 
+        style="background-color: #831f46; color: white; font-weight: bold;">
+        REPORTE DIARIO DE PIPAS
+    </h2>
+
+    <form method="post" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        <!-- Datos Generales -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Datos Generales
+            </legend>
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    {{ form.fecha.label_tag }}
+                    {{ form.fecha }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.dia.label_tag }}
+                    {{ form.dia }}
+                </div>
+
+            </div>
+            <div class="my-3">
+                {{ form.nombre_chofer.label_tag }}
+                {{ form.nombre_chofer }}
+            </div>
+            <div class="my-3">
+                {{ form.nombre_ayudante.label_tag }}
+                {{ form.nombre_ayudante }}
+            </div>
+            <div class="my-3">
+                {{ form.engomado_vehiculo.label_tag }}
+                {{ form.engomado_vehiculo }}
+            </div>
+            <div class="my-3">
+                {{ form.hora_salida.label_tag }}
+                {{ form.hora_salida }}
+            </div>
+            <div class="my-3">
+                {{ form.hora_regreso.label_tag }}
+                {{ form.hora_regreso }}
+            </div>
+            <div class="my-3">
+                {{ form.lugar_riego.label_tag }}
+                {{ form.lugar_riego }}
+            </div>
+        </fieldset>
+
+        <!-- Ubicación -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Ubicación del Área Trabajada
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-4">{{ form.colonia.label_tag }} {{ form.colonia }}</div>
+                <div class="col-md-4">{{ form.calle1.label_tag }} {{ form.calle1 }}</div>
+                <div class="col-md-4">{{ form.calle2.label_tag }} {{ form.calle2 }}</div>
+            </div>
+
+            <div class="row g-3 my-3">
+                <div class="col-md-6">{{ form.viajes.label_tag }} {{ form.viajes }}</div>
+                <div class="col-md-6">{{ form.agua_empleada_litros.label_tag }} {{ form.agua_empleada_litros }}</div>
+            </div>
+
+            <div class="my-5">
+                {{ form.observaciones.label_tag }}
+                {{ form.observaciones }}
+            </div>
+        </fieldset>
+
+
+        <!-- Botón -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-lg px-5" 
+                    style="background-color: #831f46; color: white; font-weight: bold;">
+                Guardar Reporte
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
+</div>
+<div class="container mt-4">
+
+    <!-- Encabezado -->
+    <h2 class="text-center mb-4 p-2 rounded shadow-sm" 
+        style="background-color: #831f46; color: white; font-weight: bold;">
+        CULTURA SUSTENTABLE
+    </h2>
+
+    <form method="post" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        <!-- Datos Generales -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Datos Generales
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.encargado.label_tag }}
+                    {{ form.encargado }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.dia.label_tag }}
+                    {{ form.dia }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.fecha.label_tag }}
+                    {{ form.fecha }}
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Actividades y reportes -->
+        <div class="row g-4 mb-4">
+            <fieldset class="border rounded p-3 col-md-6">
+                <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                        style="background-color: #831f46; font-size: 1rem;">
+                    Actividades Realizadas
+                </legend>
+                <div class="mb-3">
+                    {{ form.lugar.label_tag }}
+                    {{ form.lugar }}
+                </div>
+                <div class="mb-3">
+                    {{ form.personas_beneficiadas.label_tag }}
+                    {{ form.personas_beneficiadas }}
+                </div>
+                <div class="mb-3">
+                    {{ form.escuela_atendida.label_tag }}
+                    {{ form.escuela_atendida }}
+                </div>
+                <div class="mb-3">
+                    {{ form.maquiladora_atendida.label_tag }}
+                    {{ form.maquiladora_atendida }}
+                </div>
+            </fieldset>
+
+            <fieldset class="border rounded p-3 col-md-6">
+                <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                        style="background-color: #831f46; font-size: 1rem;">
+                    NO. DE REPORTE
+                </legend>
+                <div class="mb-4">
+                    {% if siguiente_id %}
+                        <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
+                    {% else %}
+                        <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    {{ form.platica_sustentabilidad.label_tag }}
+                    {{ form.platica_sustentabilidad }}
+                </div>
+                <div class="mb-3">
+                    {{ form.curso_poda.label_tag }}
+                    {{ form.curso_poda }}
+                </div>
+                <div class="mb-3">
+                    {{ form.comite_parque.label_tag }}
+                    {{ form.comite_parque }}
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Ubicación -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Ubicación del Parque o Área Verde
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-12">{{ form.colonia.label_tag }} {{ form.colonia }}</div>
+                <div class="col-md-6">{{ form.calle1.label_tag }} {{ form.calle1 }}</div>
+                <div class="col-md-6">{{ form.calle2.label_tag }} {{ form.calle2 }}</div>
+                <div class="col-md-6">{{ form.calle3.label_tag }} {{ form.calle3 }}</div>
+                <div class="col-md-6">{{ form.calle4.label_tag }} {{ form.calle4 }}</div>
+            </div>
+        </fieldset>
+
+        <!-- Observaciones -->
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Observaciones
+            </legend>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    {{ form.observaciones.label_tag }} {{ form.observaciones }}
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="border rounded p-3 mb-4">
+
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.responsable.label_tag }} (Opcional) {{ form.responsable }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.nombre_ciudadano.label_tag }} "(Opcional)" {{ form.nombre_ciudadano }}
+                </div>
+            </div>
+
+        </fieldset>
+
+        <!-- Ubicación 
+        <fieldset class="border rounded p-3 mb-4">
+            <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
+                    style="background-color: #831f46; font-size: 1rem;">
+                Ubicación del Área Trabajada
+            </legend>
+            <div id="map" style="height: 400px;"></div>
+            <div class="mt-2 text-center">
+                Latitud: <span id="lat">0.000000</span> | Longitud: <span id="lng">0.000000</span>
+            </div>
+
+             Inputs ocultos para enviar al backend
+            <input type="hidden" id="lat-input" name="lat">
+            <input type="hidden" id="lng-input" name="lng">
+        </fieldset>-->
+
+        <!-- Botón -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-lg px-5" 
+                    style="background-color: #831f46; color: white; font-weight: bold;">
+                Guardar Reporte
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Crear mapa centrado en Ciudad Juárez
+    var map = L.map('map').setView([31.733, -106.485], 13);
+
+    // Capa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var marker;
+
+    // Buscador
+    L.Control.geocoder({
+        defaultMarkGeocode: false
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 17);
+
+        if (marker) {
+            marker.setLatLng(center);
+        } else {
+            marker = L.marker(center).addTo(map);
+        }
+
+        document.getElementById('lat').textContent = center.lat.toFixed(6);
+        document.getElementById('lng').textContent = center.lng.toFixed(6);
+        document.getElementById('lat-input').value = center.lat.toFixed(6);
+        document.getElementById('lng-input').value = center.lng.toFixed(6);
+    })
+    .addTo(map);
+
+    // Clic en mapa para marcar
+    map.on('click', function(e) {
+        var lat = e.latlng.lat.toFixed(6);
+        var lng = e.latlng.lng.toFixed(6);
+
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+
+        document.getElementById('lat').textContent = lat;
+        document.getElementById('lng').textContent = lng;
+        document.getElementById('lat-input').value = lat;
+        document.getElementById('lng-input').value = lng;
+    });
+});
+</script>-->
+{% endblock %}

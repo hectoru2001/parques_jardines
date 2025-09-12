@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="reports-dashboard">
+    <!-- Header con título y filtro -->
+    <div class="reports-header">
+        <h1>Generador de Reportes</h1>
+    </div>
+
+    <!-- Grid de tarjetas de reportes -->
+    <div class="reports-grid">
+        <!-- Reporte Cuadrilla -->
+        <div class="report-card" data-category="mantenimiento">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/cuadrilla.png' %}" alt="Vista previa Reporte Cuadrilla">
+                <div class="card-overlay">
+                    <h3>Reporte Cuadrilla</h3>
+                    <p>Reporte de actividades de cuadrillas de mantenimiento</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_cuadrillas' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_cuadrillas' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Reporte Chamizal -->
+        <div class="report-card" data-category="mantenimiento">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/chamizal.png' %}" alt="Vista previa Reporte Chamizal">
+                <div class="card-overlay">
+                    <h3>Reporte Chamizal</h3>
+                    <p>Reporte de actividades en el Parque Chamizal</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_chamizal' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_chamizal' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Reporte Cultura -->
+        <div class="report-card" data-category="cultura">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/cultura.png' %}" alt="Vista previa Reporte Cultura">
+                <div class="card-overlay">
+                    <h3>Reporte Cultura</h3>
+                    <p>Reporte de actividades culturales</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_cultura' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_cultura' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Reporte Fuentes -->
+        <div class="report-card" data-category="mantenimiento">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/fuentes.png' %}" alt="Vista previa Reporte Fuentes">
+                <div class="card-overlay">
+                    <h3>Reporte Fuentes</h3>
+                    <p>Reporte de mantenimiento de fuentes</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_fuentes' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_fuentes' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Reporte Fugas -->
+        <div class="report-card" data-category="mantenimiento">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/fugas.png' %}" alt="Vista previa Reporte Fugas">
+                <div class="card-overlay">
+                    <h3>Reporte Fugas</h3>
+                    <p>Reporte de detección y reparación de fugas</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_fugas' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_fugas' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Reporte Pintura -->
+        <div class="report-card" data-category="mantenimiento">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/pintura.png' %}" alt="Vista previa Reporte Pintura">
+                <div class="card-overlay">
+                    <h3>Reporte Pintura</h3>
+                    <p>Reporte de trabajos de pintura</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_pinturas' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_pinturas' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Riego Chamizal -->
+        <div class="report-card" data-category="riego">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/riego_chamizal.png' %}" alt="Vista previa Riego Chamizal">
+                <div class="card-overlay">
+                    <h3>Riego Chamizal</h3>
+                    <p>Reporte de actividades de riego en Chamizal</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_riego_chamizal' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_riego_chamizal' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+
+        <!-- Riego Pipa -->
+        <div class="report-card" data-category="riego">
+            <div class="card-preview">
+                <img src="{% static 'img/vista-previa/riego_pipas.png' %}" alt="Vista previa Riego Pipa">
+                <div class="card-overlay">
+                    <h3>Riego Pipa</h3>
+                    <p>Reporte de actividades de riego con pipas</p>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Nuevo Reporte
+                </a>
+                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i> Gestionar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --color-secondary: #F8F9FA;
+    --color-back: #FFFFFF;
+    --color-text: #333333;
+    --color-gray: #6C757D;
+    --color-light-gray: #E9ECEF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+.reports-dashboard {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.reports-header h1 {
+    color: var(--color-primary);
+    font-weight: 700;
+    margin: 0;
+}
+
+.search-filter {
+    position: relative;
+    min-width: 300px;
+}
+
+.search-filter i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray);
+}
+
+.search-filter input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.search-filter input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(129, 31, 70, 0.1);
+}
+
+.category-filters {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1.25rem;
+    background: var(--color-light-gray);
+    border: none;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-btn:hover {
+    background: #DEE2E6;
+}
+
+.filter-btn.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.report-card {
+    background: var(--color-back);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-preview {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-preview img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: top;    
+    transition: var(--transition);
+}
+
+
+.report-card:hover .card-preview img {
+    transform: scale(1.05);
+}
+
+
+.card-actions {
+    padding: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.action-btn.primary {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+}
+
+.action-btn.primary:hover {
+    background: var(--color-primary-light);
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background: var(--color-light-gray);
+    color: var(--color-text);
+    border: none;
+}
+
+.action-btn.secondary:hover {
+    background: #DEE2E6;
+    transform: translateY(-2px);
+}
+
+/* Estados para filtrado y búsqueda */
+.report-card.hidden {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reports-dashboard {
+        padding: 1.5rem;
+    }
+    
+    .reports-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-filter {
+        min-width: auto;
+    }
+    
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .reports-dashboard {
+        padding: 1rem;
+    }
+    
+    .category-filters {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .category-filters::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .category-filters::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+}
+</style>
+
+<script src="{% static 'js/main.js' %}"></script>
+
+
+{% endblock %}

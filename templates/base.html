@@ -1,0 +1,527 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Parques y Jardines</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- CSS propio -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Geocoder CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+
+    <style>
+        :root {
+            --color-primary: #831f46;
+            --color-primary-dark: #831f46;
+            --color-accent: #D4AF37;
+            --color-accent-light: #E8D9A0;
+            --transition-fast: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+            --navbar-height: 70px;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            padding-top: var(--navbar-height);
+        }
+
+        /* Navbar */
+        .rsc-navbar {
+            background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+            box-shadow: 0 4px 20px rgba(122, 0, 60, 0.25);
+            padding: 0;
+            height: var(--navbar-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        .rsc-navbar .container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .rsc-navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+            letter-spacing: 0.8px;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 1rem;
+            position: relative;
+            overflow: hidden;
+            margin-right: 5px;
+        }
+
+        .rsc-navbar-brand:hover {
+            transform: translateY(0);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .rsc-navbar-brand::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: var(--color-accent);
+            transition: var(--transition-fast);
+        }
+
+        .rsc-navbar-brand:hover::after {
+            width: 100%;
+        }
+
+        .rsc-navbar-brand img {
+            border: 2px solid var(--color-accent);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: var(--transition-fast);
+            height: 45px;
+            background-color: white;
+            border-radius: 6px;
+            padding: 1px;
+            margin-right: 15px;
+        }
+
+        .rsc-nav-link {
+            color: rgba(255, 255, 255, 0.95) !important;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem !important;
+            margin: 0 0.25rem;
+            transition: var(--transition-fast);
+            border-radius: 6px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .rsc-nav-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+            transition: var(--transition-fast);
+        }
+
+        .rsc-nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background-color: var(--color-accent);
+            transition: var(--transition-fast);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .rsc-nav-link:hover,
+        .rsc-nav-link:focus,
+        .rsc-nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(0);
+        }
+
+        .rsc-nav-link:hover i,
+        .rsc-nav-link:focus i,
+        .rsc-nav-link.active i {
+            color: var(--color-accent);
+            transform: scale(1.15);
+        }
+
+        .rsc-nav-link:hover::before,
+        .rsc-nav-link:focus::before,
+        .rsc-nav-link.active::before {
+            width: 80%;
+        }
+
+        .rsc-dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(122, 0, 60, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            background-color: white;
+            margin-top: 0 !important;
+            border: 1px solid rgba(122, 0, 60, 0.1);
+        }
+
+        .rsc-dropdown-item {
+            padding: 0.75rem 1.75rem;
+            transition: var(--transition-fast);
+            color: var(--color-primary-dark) !important;
+            font-weight: 500;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .rsc-dropdown-item:hover,
+        .rsc-dropdown-item:focus {
+            background-color: rgba(122, 0, 60, 0.05) !important;
+            color: var(--color-primary) !important;
+            padding-left: 2rem;
+        }
+
+        .rsc-dropdown-item i {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: var(--color-primary);
+        }
+
+        .rsc-dropdown-item:hover i,
+        .rsc-dropdown-item:focus i {
+            color: var(--color-accent);
+        }
+
+        .rsc-dropdown-toggle::after {
+            transition: transform 0.3s ease;
+            margin-left: 0.6em;
+            vertical-align: 0.18em;
+        }
+
+        .show .rsc-dropdown-toggle::after {
+            transform: rotate(-180deg);
+        }
+
+        .rsc-user-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: white !important;
+            transition: var(--transition-fast);
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rsc-user-btn i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .rsc-user-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition-fast);
+        }
+
+        .rsc-user-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .rsc-user-btn:hover::before {
+            left: 100%;
+        }
+
+        .rsc-nav-toggler {
+            border-color: rgba(212, 175, 55, 0.4);
+            color: white;
+            padding: 0.5rem;
+            transition: var(--transition-fast);
+            margin-left: 1rem;
+        }
+
+        .rsc-nav-toggler:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .rsc-nav-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28212, 175, 55, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+        }
+
+        .rsc-main-content {
+            padding-top: 2rem;
+        }
+
+        .rsc-rounded-circle {
+            background-color: white;
+            border-radius: 30%;
+            padding: 2px;
+        }
+
+        /* Efecto para navbar al hacer scroll */
+        .rsc-navbar.scrolled {
+            box-shadow: 0 6px 25px rgba(122, 0, 60, 0.3);
+            background: linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+        }
+
+        @media (max-width: 992px) {
+            .rsc-navbar {
+                height: auto;
+                min-height: var(--navbar-height);
+            }
+
+            .rsc-navbar-collapse {
+                background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+                box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+                margin-top: 0;
+                border-top: 2px solid var(--color-accent);
+            }
+
+            .rsc-nav-link {
+                padding: 1rem 1.5rem !important;
+                margin: 0.3rem 0;
+                height: auto;
+            }
+
+            .rsc-nav-link::before {
+                bottom: auto;
+                top: 0;
+                left: 0;
+                transform: none;
+                height: 100%;
+                width: 3px;
+            }
+
+            .rsc-nav-link:hover::before,
+            .rsc-nav-link:focus::before,
+            .rsc-nav-link.active::before {
+                width: 3px;
+                height: 100%;
+            }
+
+            .rsc-dropdown-menu {
+                background-color: rgba(0, 0, 0, 0.2);
+                border: none;
+                box-shadow: none;
+                margin-left: 2rem;
+                width: calc(100% - 4rem);
+            }
+
+            .rsc-dropdown-item {
+                color: white !important;
+            }
+
+            .rsc-dropdown-item:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+            }
+
+            .rsc-dropdown-item i {
+                color: var(--color-accent-light);
+            }
+
+            .rsc-user-btn {
+                margin: 1rem 0 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Footer */
+        .app-footer {
+            background: linear-gradient(to right, #68696f, #55636e);
+            color: white;
+            padding: 1.2rem 1rem;
+            font-family: 'Inter', sans-serif;
+            margin-top: 40px;
+            box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .footer-brand,
+        .footer-extra-image,
+        .developer-info {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .extra-footer-logo {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .footer-logo {
+            height: 55px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .developer-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .developed-by {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .developer-logo {
+            height: 55px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .developer-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg rsc-navbar">
+        <div class="container">
+            <a class="navbar-brand rsc-navbar-brand" href="#">
+            <span>Reportes</span>
+            </a>
+            <button class="navbar-toggler rsc-nav-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#rscNavbar" aria-controls="rscNavbar" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="rscNavbar">
+                <ul class="navbar-nav me-auto">
+                    <!-- Link normal -->
+                    <li class="nav-item">
+                        <a class="nav-link rsc-nav-link active" href="{% url 'menu' %}"><i class="bi bi-house-fill"></i>Inicio</a>
+                    </li>
+
+                    <!-- Dropdown / Submenú 
+                    <li class="nav-item dropdown">
+                        <a class="nav-link rsc-nav-link dropdown-toggle" href="#" id="servicesMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear"></i> Ejemplo
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="servicesMenu">
+                            <li><a class="dropdown-item" href="#">Ejemplo #1</a></li>
+                            <li><a class="dropdown-item" href="#">Ejemplo #2</a></li>
+                            <li><a class="dropdown-item" href="#">Ejemplo #3</a></li>
+                        </ul>
+                    </li>-->
+                </ul>
+
+                <div class="dropdown ms-lg-2">
+                    {% if user.is_authenticated %}
+                        <button class="btn rsc-user-btn dropdown-toggle" type="button" id="rscUserMenu"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                            <span>{{ user.get_full_name|default:user.username}}</span>
+                        </button>
+                        <ul class="dropdown-menu rsc-dropdown-menu dropdown-menu-end" aria-labelledby="rscUserMenu">
+                            <li><a class="dropdown-item rsc-dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>
+                                    Cerrar sesión</a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container py-4 rsc-main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="/static/img/logopyj.png" alt="Logo Dependencia" class="footer-logo">
+                </div>
+                <div class="footer-extra-image">
+                    <img src="/static/img/juarez-conectado.png" alt="Juárez Conectado" class="extra-footer-logo">
+                </div>
+                <div class="developer-info">
+                    <span class="developed-by">Desarrollado Por:</span>
+                    <img src="/static/img/LOGO%20DGIC%2024-27%20V.png" alt="Dirección General de Innovación y Calidad"
+                        class="developer-logo">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.rsc-navbar');
+            if (window.scrollY > 10) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+            dropdown.addEventListener('show.bs.dropdown', function () {
+                this.querySelector('.dropdown-toggle').classList.add('active');
+            });
+            dropdown.addEventListener('hide.bs.dropdown', function () {
+                this.querySelector('.dropdown-toggle').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
