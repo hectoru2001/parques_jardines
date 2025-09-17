@@ -16,7 +16,9 @@ SECRET_KEY = '_61-pJgQMEV6rPL7JI_O758wTIh3SqCjNwTMGrr1fSvfBLI9fV8xjqkOGO59suQyel
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93', 'reportespyj.juarez.gob.mx']
+
+CSRF_TRUSTED_ORIGINS = ['https://reportespyj.juarez.gob.mx']
 
 # Application definition
 INSTALLED_APPS = [
@@ -26,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'livereload',
     # Custom apps
     'apps.login',
     'apps.formularios',
@@ -40,7 +41,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = 'parques_jardines.urls'
@@ -73,7 +73,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '123456',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
@@ -107,6 +107,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
