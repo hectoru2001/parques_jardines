@@ -1,43 +1,27 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Elementos del DOM
-    const searchInput = document.getElementById('reportSearch');
-    const filterButtons = document.querySelectorAll('.filter-btn');
     const reportCards = document.querySelectorAll('.report-card');
     
-    // Filtrado por búsqueda
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        
-        reportCards.forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const description = card.querySelector('p').textContent.toLowerCase();
-            
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
-        });
-    });
+    // Configuración del modal para vista previa
+    const previewButtons = document.querySelectorAll('.preview-btn');
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('imageModalLabel');
     
-    // Filtrado por categoría
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Actualizar botones activos
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
+    previewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            const filter = this.getAttribute('data-filter');
+            // Obtener la URL de la imagen y el título
+            const imageUrl = this.getAttribute('href');
+            const title = this.getAttribute('data-title');
             
-            reportCards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                
-                if (filter === 'all' || filter === category) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
+            // Establecer la imagen y el título en el modal
+            modalImage.src = imageUrl;
+            modalImage.alt = title;
+            modalTitle.textContent = title;
+            
+            // Mostrar el modal
+            imageModal.show();
         });
     });
     
