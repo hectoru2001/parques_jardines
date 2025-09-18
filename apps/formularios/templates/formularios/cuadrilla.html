@@ -126,10 +126,19 @@
                             </div>
                         </div>
                     </div>
-
-                            {{ form.otros.label_tag }}
-                            {{ form.otros }}
-                            {{ form.otros_cant }}
+                    <div class="col-md-12">
+                        <div class="row align-items-center">
+                            <div class="col-6 d-flex align-items-center">
+                                {{ form.otros.label_tag }}
+                                <div class="ms-2 flex-grow-1">
+                                    {{ form.otros }}
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                {{ form.otros_cant }}
+                            </div>
+                        </div>
+                    </div>
 
             </fieldset>
 
