@@ -59,6 +59,23 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "dia": "Día",
             "trabajo_ciudadania": "Trabajo de la ciudadanía",
             "superficie_atendida_m2": "Superficie atendida (m²)",
+            "apoyo_areas_gob": "Apoyo a áreas de gobierno",
+            "cesped_cortado_m2": "Césped cortado (m²)",
+            "deshierbe_m2": "Deshierbe (m²)",
+            "arboles_plantados": "Árboles plantados (Num)",
+            "arboles_podados": "Árbooles podados (Num)",
+            "arboles_retirados": "Árboles retirados (Num)",
+            "zacate_basura_kilos": "Zacate, basura y ramas recolectadas (kilos)",
+            "escombro_kilos": "Escombro o tierra de arrastre (kilos)",
+            "llantas_recolectadas": "Llantas recolectadas (Num)",
+            "papeleo_m2": "Papeleo (m²)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "colonia_camellon" : "Colonia o Camellón",
+            "ubicacion_area" : "Ubicación o Área",
+            "trabajo_ciudadania" : "Trabajo de la ciudadanía",
+        
+            "vehiculos_utilizados": "Vehículos utilizados",
         }
 
 
@@ -105,6 +122,26 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
 
             # Dropdown
             "frecuencia_recoleccion_basura": forms.Select,
+
+        
+        }
+        labels = {
+        
+            "dia": "Día",
+            "trabajo_ciudadania": "Trabajo de la ciudadanía",
+
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "cesped_cortado_m2": "Césped cortado (m²)",
+            "deshierbe_m2": "Deshierbe (m²)",
+            "arboles_plantados": "Árboles plantados (Num)",
+            "arboles_podados": "Árbooles podados (Num)",
+            "arboles_retirados": "Árboles retirados (Num)",
+            "zacate_basura_kilos": "Zacate, basura y ramas recolectadas (kilos)",
+            "papeleo_m2": "Papeleo (m²)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "ubicacion_area" : "Ubicación o Área",
+            "vehiculos_utilizados": "Vehículos utilizados",
         }
 
 
@@ -130,6 +167,14 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
                 ],
                 attrs={"class": "form-select form-control"}
             ),
+        }
+        labels = {
+            "dia": "Día",
+            "comite_parque": "Comité de vecinos / Parque atendido",
+            "calle1": "Calle 1",
+            "calle2": "Calle 2",
+            "calle3": "Calle 3",
+            "calle4": "Calle 4",
         }
 
 
@@ -179,6 +224,20 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             # Dropdown
             "frecuencia_recoleccion_basura": forms.Select,
         }
+        labels = {
+            "dia": "Día",
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "limpieza_papeleo_m2": "Limpieza de papeleo (m²)",
+            "reparacion_tuberia" : "Reparación de tubería (Num)",
+            "basura_kg": "Basura recolectada (kilos)",
+
+            "reparacion_bomba" : "Reparación de bomba (Num)",
+            "instalacion_bomba" : "Instalación de bomba (Num)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "calle1" : "Calle 1",
+            "calle2" : "Calle 2",
+        }
 
 
 class ReporteFugasForm(FormControlMixin, forms.ModelForm):
@@ -227,6 +286,26 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "frecuencia_recoleccion_basura": forms.Select,
         }
 
+        labels = {
+            "dia": "Día",
+            "trabajo_ciudadania": "Trabajo de la ciudadanía",
+            "apoyo_areas_gob": "Apoyo a áreas de gobierno",
+
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "reparacion_fugas": "Reparación de fuga (Num)",
+            "instalacion_agua": "Instalación de toma de agua (Num)",
+            "instalacion_riego": "Instalación de sistema de riego (Num)",
+            "revision_riego": "Revisión y reparación de sistema de riego (Num)",
+            "material_riego": "Listado de material para sistema de riego (NUm)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "colonia": "Colonia o Camellón",
+            "calle1": "Calle 1",
+            "calle2": "Calle 2",
+
+            "vehiculos_utilizados": "Vehículos utilizados",
+        }
+
 
 class ReportePinturasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
@@ -273,6 +352,35 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             # Dropdown
             "frecuencia_recoleccion_basura": forms.Select,
         }
+        labels = {
+            "dia": "Día",
+            "trabajo_ciudadania": "Trabajo de la ciudadanía",
+            "apoyo_areas_gob": "Apoyo a áreas verdes de gobierno",
+
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "bancas_cemento": "Bancas de cemento (Num)",
+            "bancas_metalicas": "Bancas metálicas (Num)",
+            "multijuegos": "Multijuegos (Num)",
+            "resavaladeros": "Resbaladero (Num)",
+            "sube_baja": "Sube y baja (Num)",
+            "columpios": "Columpios (Num)",
+            "pasamanos": "Pasamanos (Num)",
+            "juego_esferas": "Juego de esferas (Num)",
+            "canchas": "Canchas (Num)",
+            "porterias": "Porterías (Num)",
+            "encalado_arboles": "Encalado de árboles (Num)",
+            "levantado_malla": "Levantamiento de malla ciclónica (Num)",
+            "reposicion_malla": "Reposición de malla ciclónica (Num)",
+            "pintura_utilizada": "Pintura de bardas (Litros)",
+            "thinner_utilizado": "Thinner (Litros)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "colonia": "Colonia o Camellón",
+            "calle1": "Calle 1",
+            "calle2": "Calle 2",
+
+            "vehiculos_utilizados": "Vehículos utilizados",
+        }
 
 
 class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
@@ -284,6 +392,18 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
 
+        }
+        labels = {
+            "dia": "Día",
+
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "reparacion_fugas": "Reparación de fuga (Num)",
+            "limpieza_aspersores": "Limpieza de aspersores (Num)",
+            "basura_recolectada": "Basura recolectada (kg)",
+            "papel_m2": "Papeleo (m²)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "ubicacion_area": "Ubicación del área trabajada",   
         }
 
 class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
@@ -308,4 +428,18 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
                 ],
                 attrs={"class": "form-select form-control"}
             ),
+        }
+        labels = {
+            "dia": "Día",
+
+            "engomado_vehiculo": "Engomado del vehículo",
+            "hora_salida": "Hora de salida",
+            "hora_regreso": "Hora de regreso",
+            "lugar_riego": "Lugar de riego",
+
+            "colonia": "Colonia o AV. Principal",
+            "calle1": "Calle 1",
+            "calle2": "Calle 2",
+
+            "agua_empleada_litros": "Agua empleada (Litros)",
         }

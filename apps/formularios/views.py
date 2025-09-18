@@ -166,43 +166,109 @@ def formato_riego_pipas(request):
 # ===================== Cargar listado de reportes =====================
 @login_required
 def lista_cuadrilla(request):
-    reportes = ReporteCuadrilla.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_cuadrillas.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteCuadrilla.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteCuadrilla.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_cuadrillas.html", {
+        "reportes": reportes,
+        "id": id
+    })
+
 
 @login_required
 def lista_chamizal(request):
-    reportes = ReporteChamizal.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_chamizal.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteChamizal.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteChamizal.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_chamizal.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_cultura(request):
-    reportes = ReporteCultura.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_cultura.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteCultura.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteCultura.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_cultura.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_fuentes(request):
-    reportes = ReporteFuentes.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_fuentes.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteFuentes.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteFuentes.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_fuentes.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_fugas(request):
-    reportes = ReporteFugas.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_fugas.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteFugas.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteFugas.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_fugas.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_pintura(request):
-    reportes = ReportePintura.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_pinturas.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReportePintura.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReportePintura.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_pinturas.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_riego_chamizal(request):
-    reportes = ReporteRiegoChamizal.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_riego_chamizal.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteRiegoChamizal.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteRiegoChamizal.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_riego_chamizal.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 @login_required
 def lista_riego_pipas(request):
-    reportes = ReporteRiegoPipas.objects.all().order_by('-fecha')
-    return render(request, "gestion/lista_riego_pipa.html", {"reportes": reportes})
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteRiegoPipas.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteRiegoPipas.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_riego_pipa.html", {
+        "reportes": reportes,
+        "id": id
+    })
+
 
 # ===================== Edición de reportes =====================
 @login_required
