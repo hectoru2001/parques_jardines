@@ -39,8 +39,8 @@ def login_view(request):
     return render(request, "login.html")
 
 def logout_view(request):
-    logout(request)
     registrar_log(request, "El usuario cerró sesión")
+    logout(request)
     return redirect('login')
 
 @login_required
