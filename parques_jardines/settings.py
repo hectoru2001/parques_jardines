@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # Custom apps
     'apps.login',
     'apps.formularios',
+    'apps.administracion',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,7 @@ DATABASES = {
         'NAME': 'parques_jardines',
         'USER': 'postgres',
         'PASSWORD': '123456',
-        'HOST': 'localhost',
+        'HOST': '10.236.62.93',
         'PORT': '5433',
     }
 }

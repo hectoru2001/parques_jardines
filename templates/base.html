@@ -449,8 +449,14 @@
                 <ul class="navbar-nav me-auto">
                     <!-- Link normal -->
                     <li class="nav-item">
-                        <a class="nav-link rsc-nav-link active" href="{% url 'menu' %}"><i class="bi bi-house-fill"></i>Inicio</a>
+                        <a class="nav-link rsc-nav-link" href="{% url 'menu' %}"><i class="bi bi-house-fill"></i>Inicio</a>
                     </li>
+
+                    {% if user.is_authenticated and request.session.tipo_usuario == 0 %}
+                    <li class="nav-item">
+                        <a class="nav-link rsc-nav-link" href="{% url 'cargarlogs' %}"><i class="bi bi-gear"></i>Panel de Control</a>
+                    </li>
+                    {% endif %}
 
                     <!-- Dropdown / Submenú 
                     <li class="nav-item dropdown">

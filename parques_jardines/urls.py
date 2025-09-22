@@ -5,4 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.login.urls')),
     path('formularios/', include('apps.formularios.urls')),
+    path('superoot/', include('apps.administracion.urls')),
 ]
