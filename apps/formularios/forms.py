@@ -33,6 +33,7 @@ class FormControlMixin:
                     field.widget.attrs["class"] = (css_class + " form-control").strip()
 
 class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
+    numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
