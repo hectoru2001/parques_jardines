@@ -1,6 +1,27 @@
 from django import forms
 from .models import *
 
+
+DIAS_SEMANA = [
+    ("lunes", "Lunes"),
+    ("martes", "Martes"),
+    ("miércoles", "Miércoles"),
+    ("jueves", "Jueves"),
+    ("viernes", "Viernes"),
+    ("sábado", "Sábado"),
+    ("domingo", "Domingo"),
+]
+
+DISTRITOS = [
+    ("1", "1"),
+    ("2", "2"),
+    ("3", "3"),
+    ("4", "4"),
+    ("5", "5"),
+    ("6", "6"),
+]
+
+
 # Estilo de formularios con Bootstrap
 class FormControlMixin:
     def __init__(self, *args, **kwargs):
@@ -12,7 +33,6 @@ class FormControlMixin:
                     field.widget.attrs["class"] = (css_class + " form-control").strip()
 
 class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
-    numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
@@ -26,23 +46,13 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "vehiculos_utilizados": forms.Textarea(attrs={"rows": 2}),
 
             # Checkboxes
-            "trabajo_diario": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "trabajo_ciudadania": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "trabajo_diario": forms.CheckboxInput(attrs={"class": "form-check-input tipo-trabajo"}),
+            "trabajo_ciudadania": forms.CheckboxInput(attrs={"class": "form-check-input tipo-trabajo"}),
+            "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input tipo-trabajo"}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -99,18 +109,8 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -155,18 +155,8 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
             "observaciones": forms.Textarea(attrs={"rows": 8}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+
         }
         labels = {
             "dia": "Día",
@@ -200,18 +190,7 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -261,18 +240,8 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),         
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -296,7 +265,7 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "instalacion_agua": "Instalación de toma de agua (Num)",
             "instalacion_riego": "Instalación de sistema de riego (Num)",
             "revision_riego": "Revisión y reparación de sistema de riego (Num)",
-            "material_riego": "Listado de material para sistema de riego (NUm)",
+            "material_riego": "Listado de material para sistema de riego (Num)",
             "personal_trabajo": "Personal que trabajo (Num)",
 
             "colonia": "Colonia o Camellón",
@@ -328,18 +297,8 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -361,7 +320,7 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "bancas_cemento": "Bancas de cemento (Num)",
             "bancas_metalicas": "Bancas metálicas (Num)",
             "multijuegos": "Multijuegos (Num)",
-            "resavaladeros": "Resbaladero (Num)",
+            "resvaladeros": "Resbaladero (Num)",
             "sube_baja": "Sube y baja (Num)",
             "columpios": "Columpios (Num)",
             "pasamanos": "Pasamanos (Num)",
@@ -371,8 +330,8 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "encalado_arboles": "Encalado de árboles (Num)",
             "levantado_malla": "Levantamiento de malla ciclónica (Num)",
             "reposicion_malla": "Reposición de malla ciclónica (Num)",
-            "pintura_utilizada": "Pintura de bardas (Litros)",
-            "thinner_utilizado": "Thinner (Litros)",
+            "pintura_utilizada_litros": "Pintura utilizada (Litros)",
+            "thinner_utilizado_litros": "Thinner utilizado (Litros)",
             "personal_trabajo": "Personal que trabajo (Num)",
 
             "colonia": "Colonia o Camellón",
@@ -416,18 +375,7 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
             "fecha": forms.DateInput(attrs={"type": "date"}),
             "hora_salida": forms.TimeInput(attrs={"type": "time"}),
             "hora_regreso": forms.TimeInput(attrs={"type": "time"}),
-            "dia": forms.Select(
-                choices=[
-                    ("lunes", "Lunes"),
-                    ("martes", "Martes"),
-                    ("miércoles", "Miércoles"),
-                    ("jueves", "Jueves"),
-                    ("viernes", "Viernes"),
-                    ("sábado", "Sábado"),
-                    ("domingo", "Domingo"),
-                ],
-                attrs={"class": "form-select form-control"}
-            ),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
         }
         labels = {
             "dia": "Día",

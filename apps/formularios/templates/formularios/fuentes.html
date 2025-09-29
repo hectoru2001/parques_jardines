@@ -13,7 +13,7 @@
         CUADRILLA DE FUENTES
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" onsubmit="return ValidaSuperficieAtendida();">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -58,13 +58,8 @@
                     Reporte
                 </legend>
                 <div class="mb-3">
-                    {% if siguiente_id %}
-                        <label class="form-label">Número de Reporte</label>
-                        <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
-                    {% else %}
-                        <label class="form-label">Número de Reporte</label>
-                        <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
-                    {% endif %}
+                    <label class="form-label">Número de Reporte</label>
+                    <div class="mb-3">{{ form.folio_pac }}</div>
                 </div>
                 <div class="mb-3">{{ form.trabajo_realizado.label_tag }} {{ form.trabajo_realizado }}</div>
                 <div class="mb-3">{{ form.pendientes.label_tag }} {{ form.pendientes }}</div>
@@ -114,5 +109,6 @@
         </div>
     </form>
 </div>
+<script src="{% static 'js/fuentes.js' %}"></script>
 {% endblock %}
 

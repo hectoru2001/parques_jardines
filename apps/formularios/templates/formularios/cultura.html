@@ -69,11 +69,8 @@
                     NO. DE REPORTE
                 </legend>
                 <div class="mb-4">
-                    {% if siguiente_id %}
-                        <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
-                    {% else %}
-                        <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
-                    {% endif %}
+                    <label class="form-label">Número de Reporte</label>
+                    <div class="mb-3">{{ form.folio_pac }}</div>
                 </div>
                 <div class="mb-3">
                     {{ form.platica_sustentabilidad.label_tag }}

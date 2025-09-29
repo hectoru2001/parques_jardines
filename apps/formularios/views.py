@@ -37,7 +37,7 @@ def formato_cuadrilla(request):
         form = ReporteCuadrillaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("lista_reportes")
+            return redirect("lista_cuadrillas")
     else:
         form = ReporteCuadrillaForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -279,7 +279,7 @@ def formato_cuadrilla_editar(request, pk):
         form = ReporteCuadrillaForm(request.POST, instance=reporte)
         if form.is_valid():
             form.save()
-            return redirect("lista_reportes")
+            return redirect("lista_cuadrillas")
     else:
         form = ReporteCuadrillaForm(instance=reporte)
 
@@ -414,7 +414,7 @@ def generar_pdf_cuadrilla(request, pk):
 
     #Cuarta fila
     page.insert_text((138, 155), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((420, 160), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((420, 160), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     #Quinta fila - izquierda
     draw_checkbox(page, 264, 196, reporte.parques_comunitarios)
@@ -464,7 +464,7 @@ def generar_pdf_cuadrilla(request, pk):
 
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     fecha_str = reporte.fecha.strftime("%d-%m-%Y")  # Formato día-mes-año
-    response["Content-Disposition"] = f'inline; filename="REPORTE_CUADRILLA_#{reporte.id}_{fecha_str}.pdf"'
+    response["Content-Disposition"] = f'inline; filename="REPORTE_CUADRILLA_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
 def generar_pdf_chamizal(request, pk):
@@ -490,7 +490,7 @@ def generar_pdf_chamizal(request, pk):
 
     #Cuarta fila
     page.insert_text((158, 189), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     #Quinta fila - izquierda
     draw_checkbox(page, 315, 235, reporte.parque_chamizal)
@@ -536,7 +536,7 @@ def generar_pdf_chamizal(request, pk):
 
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     fecha_str = reporte.fecha.strftime("%d-%m-%Y")  # Formato día-mes-año
-    response["Content-Disposition"] = f'inline; filename="REPORTE_CHAMIZAL_#{reporte.id}_{fecha_str}.pdf"'
+    response["Content-Disposition"] = f'inline; filename="REPORTE_CHAMIZAL_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
 def generar_pdf_cultura(request, pk):
@@ -556,7 +556,7 @@ def generar_pdf_cultura(request, pk):
     page.insert_text((435, 185), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((433, 225), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((433, 225), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     # Lugar
     page.insert_text((125, 247), reporte.lugar, fontsize=8, color=(0,0,1))
@@ -612,7 +612,7 @@ def generar_pdf_cultura(request, pk):
 
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     fecha_str = reporte.fecha.strftime("%d-%m-%Y")  # Formato día-mes-año
-    response["Content-Disposition"] = f'inline; filename="REPORTE_CULTURA_#{reporte.id}_{fecha_str}.pdf"'
+    response["Content-Disposition"] = f'inline; filename="REPORTE_CULTURA_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
 
@@ -633,7 +633,7 @@ def generar_pdf_fuentes(request, pk):
     page.insert_text((405, 98), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((428, 137), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((428, 137), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     # Superficie Atendida
     page.insert_text((215, 150), str(reporte.superficie_atendida_m2), fontsize=8, color=(0,0,1))
@@ -675,7 +675,7 @@ def generar_pdf_fuentes(request, pk):
 
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     fecha_str = reporte.fecha.strftime("%d-%m-%Y")  # Formato día-mes-año
-    response["Content-Disposition"] = f'inline; filename="REPORTE_FUENTES_#{reporte.id}_{fecha_str}.pdf"'
+    response["Content-Disposition"] = f'inline; filename="REPORTE_FUENTES_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
 def generar_pdf_fuentes_multiple(request, ids):
@@ -738,7 +738,7 @@ def generar_pdf_fuentes_multiple(request, ids):
     for i, reporte in enumerate(reportes):
         pos = bloques[i]
 
-        page.insert_text(pos["id"], "# " + str(reporte.id), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
 
         page.insert_text(pos["superficie"], str(reporte.superficie_atendida_m2 or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["limpieza"], str(reporte.limpieza_papeleo_m2 or ""), fontsize=8, color=(0,0,1))
@@ -783,7 +783,7 @@ def generar_pdf_fugas(request, pk):
 
     page.insert_text((115, 180), reporte.coordinador, fontsize=8, color=(0,0,1))
     page.insert_text((165, 195), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str(reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     draw_checkbox(page, 300, 245, reporte.parques_comunitarios)
     draw_checkbox(page, 300, 260, reporte.parques_municipales)
@@ -847,7 +847,7 @@ def generar_pdf_pinturas(request, pk):
 
     page.insert_text((115, 175), reporte.coordinador, fontsize=8, color=(0,0,1))
     page.insert_text((165, 190), reporte.encargado, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str(reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     draw_checkbox(page, 300, 240, reporte.comunitarios_atendidos)
     draw_checkbox(page, 300, 255, reporte.municipales_atendidos)
@@ -924,7 +924,7 @@ def generar_pdf_riego_chamizal(request, pk):
     page.insert_text((495, 96), reporte.fecha.strftime('%Y'), fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((428, 148), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((428, 148), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     # Superficie Atendida
     page.insert_text((215, 162), str(reporte.superficie_atendida_m2), fontsize=8, color=(0,0,1))
@@ -997,7 +997,7 @@ def generar_pdf_fuentes_multiple_riego_chamizal(request, ids):
     for i, reporte in enumerate(reportes):
         pos = bloques[i]
 
-        page.insert_text(pos["id"], "# " + str(reporte.id), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
         page.insert_text(pos["superficie"], str(reporte.superficie_atendida_m2 or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["fugas"], str(reporte.reparacion_fugas or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["aspersores"], str(reporte.limpieza_aspersores or ""), fontsize=8, color=(0,0,1))
@@ -1033,7 +1033,7 @@ def generar_pdf_riego_pipa(request, pk):
     page.insert_text((415, 140), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((265, 140), "# " + str( reporte.id), fontsize=15, color=(0,0,1))
+    page.insert_text((265, 140), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
 
     # Nombre del Chofer
     page.insert_text((200, 155), reporte.nombre_chofer, fontsize=8, color=(0,0,1))
@@ -1124,7 +1124,7 @@ def generar_pdf_riego_pipa_multiple(request, ids):
 
         # Día e ID
         page.insert_text(pos["dia"], str(reporte.dia or ""), fontsize=8, color=(0,0,1))
-        page.insert_text(pos["id"], "# " + str(reporte.id), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
 
         # Datos del chofer y vehículo
         page.insert_text(pos["chofer"], reporte.nombre_chofer or "", fontsize=8, color=(0,0,1))

@@ -60,7 +60,7 @@
             </div>
         </fieldset>
 
-        <div class="row g-4">
+        <div class="row g-4 logica-seleccion">
             <!-- Primer fieldset -->
             <fieldset class="border rounded p-3 col-md-6">
                 <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
@@ -149,13 +149,8 @@
                     Reporte
                 </legend>
                 <div class="mb-3">
-                    {% if siguiente_id %}
-                        <label class="form-label">Número de Reporte</label>
-                        <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
-                    {% else %}
-                        <label class="form-label">Número de Reporte</label>
-                        <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
-                    {% endif %}
+                    <label class="form-label">Número de Reporte</label>
+                    <div class="mb-3">{{ form.folio_pac }}</div>
                 </div>
                 <div class="mb-3">{{ form.trabajo_realizado.label_tag }} {{ form.trabajo_realizado }}</div>
                 <div class="mb-3">{{ form.pendientes.label_tag }} {{ form.pendientes }}</div>
@@ -230,5 +225,7 @@
         </div>
     </form>
 </div>
+<script src="{% static 'js/checkboxes.js' %}"></script>
+<script src="{% static 'js/pinturas.js' %}"></script>
 {% endblock %}
 

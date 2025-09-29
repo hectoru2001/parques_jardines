@@ -1,6 +1,8 @@
 from django.db import models
 
 class ReporteCuadrilla(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     # Datos generales
     distrito = models.CharField(max_length=100)
     dia = models.CharField(max_length=20, blank=True)
@@ -11,13 +13,13 @@ class ReporteCuadrilla(models.Model):
     encargado_cuadrilla = models.CharField(max_length=100)
 
     # Áreas atendidas
-    parques_comunitarios = models.BooleanField(default=0)
-    parques_municipales = models.BooleanField(default=0)
-    monumentos_atendidos = models.BooleanField(default=0)
-    camellones_atendidos = models.BooleanField(default=0)
-    apoyo_areas_gob = models.BooleanField(default=0)
+    parques_comunitarios = models.BooleanField(default=False)
+    parques_municipales = models.BooleanField(default=False)
+    monumentos_atendidos = models.BooleanField(default=False)
+    camellones_atendidos = models.BooleanField(default=False)
+    apoyo_areas_gob = models.BooleanField(default=False)
     otros = models.CharField(max_length=20, blank=True, null=True)
-    otros_cant = models.BooleanField(default=0)
+    otros_cant = models.BooleanField(default=False)
 
 
 
@@ -86,6 +88,8 @@ class ReporteCuadrilla(models.Model):
 
 
 class ReporteChamizal(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     distrito = models.CharField(max_length=100)
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
@@ -127,6 +131,8 @@ class ReporteChamizal(models.Model):
         return f"Reporte Chamizal"
 
 class ReporteCultura(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
     encargado = models.CharField(max_length=100, blank=True)
@@ -150,6 +156,8 @@ class ReporteCultura(models.Model):
     nombre_ciudadano = models.CharField(max_length=100, blank=True)
 
 class ReporteFuentes(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
     coordinador = models.CharField(max_length=100, blank=True)
@@ -169,6 +177,8 @@ class ReporteFuentes(models.Model):
     observaciones = models.TextField(blank=True, null=True)
 
 class ReporteFugas(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     distrito = models.CharField(max_length=100)
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
@@ -180,13 +190,13 @@ class ReporteFugas(models.Model):
     coordinador = models.CharField(max_length=100)
     encargado_cuadrilla = models.CharField(max_length=100)
 
-    parques_comunitarios = models.BooleanField(default=0)
-    parques_municipales = models.BooleanField(default=0)
-    monumentos_atendidos = models.BooleanField(default=0)
-    camellones_atendidos = models.BooleanField(default=0)
-    apoyo_areas_gob = models.BooleanField(default=0)
+    parques_comunitarios = models.BooleanField(default=False)
+    parques_municipales = models.BooleanField(default=False)
+    monumentos_atendidos = models.BooleanField(default=False)
+    camellones_atendidos = models.BooleanField(default=False)
+    apoyo_areas_gob = models.BooleanField(default=False)
     otros = models.CharField(max_length=20, blank=True, null=True)
-    otros_cant = models.BooleanField(default=0)
+    otros_cant = models.BooleanField(default=False)
 
     superficie_atendida_m2 = models.IntegerField(default=0)
     reparacion_fugas = models.IntegerField(default=0)
@@ -209,6 +219,8 @@ class ReporteFugas(models.Model):
     vehiculos_utilizados = models.TextField(blank=True, null=True)
 
 class ReportePintura(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
     distrito = models.CharField(max_length=100)
@@ -218,13 +230,13 @@ class ReportePintura(models.Model):
     trabajo_ciudadania = models.BooleanField(default=False)
     operativo_especial = models.BooleanField(default=False)
 
-    comunitarios_atendidos = models.BooleanField(default=0)
-    municipales_atendidos = models.BooleanField(default=0)
-    monumentos_atendidos = models.BooleanField(default=0)
-    camellones_atendidos = models.BooleanField(default=0)
-    apoyo_areas_gob = models.BooleanField(default=0)
+    comunitarios_atendidos = models.BooleanField(default=False)
+    municipales_atendidos = models.BooleanField(default=False)
+    monumentos_atendidos = models.BooleanField(default=False)
+    camellones_atendidos = models.BooleanField(default=False)
+    apoyo_areas_gob = models.BooleanField(default=False)
     otros = models.CharField(max_length=20, blank=True, null=True)
-    otros_cant = models.BooleanField(default=0)
+    otros_cant = models.BooleanField(default=False)
 
     superficie_atendida_m2 = models.IntegerField(default=0)
     bancas_cemento = models.IntegerField(default=0)
@@ -258,6 +270,8 @@ class ReportePintura(models.Model):
 
 
 class ReporteRiegoChamizal(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     riego_en = models.CharField(max_length=100)
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
@@ -274,6 +288,8 @@ class ReporteRiegoChamizal(models.Model):
     observaciones = models.TextField(blank=True, null=True)
 
 class ReporteRiegoPipas(models.Model):
+    folio_pac = models.IntegerField(default=1)
+
     fecha = models.DateField()
     dia = models.CharField(max_length=20, blank=True)
     nombre_chofer = models.CharField(max_length=100, blank=True)

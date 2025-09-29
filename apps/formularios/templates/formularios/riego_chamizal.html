@@ -8,7 +8,7 @@
 <div class="container mt-4">
 
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" onsubmit="return ValidaSuperficieAtendida();">
 
         <!-- Encabezado -->
         <h2 class="text-center mb-4 p-2 rounded shadow-sm"
@@ -70,13 +70,8 @@
                     Reporte
                 </legend>
                 <div class="mb-3">
-                    {% if siguiente_id %}
                     <label class="form-label">Número de Reporte</label>
-                    <input type="text" class="form-control text-center" value="{{ siguiente_id }}" disabled>
-                    {% else %}
-                    <label class="form-label">Número de Reporte</label>
-                    <input type="text" class="form-control text-center" value="{{ numero_reporte }}" disabled>
-                    {% endif %}
+                    <div class="mb-3">{{ form.folio_pac }}</div>
                 </div>
                 <div class="mb-3">
                     {{ form.basura_recolectada.label_tag }} 
@@ -117,4 +112,5 @@
         </div>
     </form>
 </div>
+<script src="{% static 'js/riego_chamizal.js' %}"></script>
 {% endblock %}
