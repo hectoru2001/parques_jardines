@@ -351,6 +351,8 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+
 
         }
         labels = {

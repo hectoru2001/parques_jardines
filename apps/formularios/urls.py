@@ -55,4 +55,11 @@ urlpatterns = [
     path('riego_pipas/editar/<int:pk>', views.formato_riego_pipas_editar, name="riego_pipas_editar"),
     path('riego_pipas/reporte/pdf/<int:pk>/', views.generar_pdf_riego_pipa, name='reporte_pdf_riego_pipas'),
     path('riego_pipas/reporte/pdf-multiple/<str:ids>', views.generar_pdf_riego_pipa_multiple, name='generar_pdf_riego_pipas_multiple'),
+
+
+
+    #Funcionamiento offline
+    path('api/riego-chamizal/', views.api_guardar_riego_chamizal, name='api_guardar_riego_chamizal'),
+
+
 ]

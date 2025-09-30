@@ -5,6 +5,10 @@ from .forms import *
 from .models import *
 from django.db.models import Max
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
 import fitz  # PyMuPDF
 from io import BytesIO
 
@@ -1158,3 +1162,23 @@ def generar_pdf_riego_pipa_multiple(request, ids):
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     response["Content-Disposition"] = 'inline; filename="REPORTE_RIEGO_PIPA_MULTIPLE.pdf"'
     return response
+
+
+
+
+# ===================== Funcionamiento offline =======================
+
+@csrf_exempt
+@require_POST
+def api_guardar_riego_chamizal(request):
+    try:
+        data = json.loads(request.body)
+        form = ReporteRiegoChamizalForm(data)
+        if form.is_valid():
+            instance = form.save()
+            return JsonResponse({'status': 'ok', 'id': instance.id}, status=201)
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    except Exception as e:
+        # Aquí podrás ver el error exacto
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
