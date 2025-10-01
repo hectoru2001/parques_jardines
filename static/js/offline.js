@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (todosExitosos) {
             limpiarPendientes();
             alert('✅ Todos los registros se guardaron en el servidor.');
+            window.location.href = "/formularios/riego_chamizal/lista/"
         } else {
             actualizarBotonSincronizar();
         }
