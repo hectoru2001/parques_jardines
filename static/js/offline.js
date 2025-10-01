@@ -1,107 +1,167 @@
-// ------------------- Inicialización Dexie -------------------
-const db = new Dexie("FormulariosOffline");
+// offline.js - Guardado offline para Reporte Riego Chamizal (con API JSON)
 
-// Versión 1 de la DB
-db.version(1).stores({
-    formularios: "++id, formName, timestamp"
-});
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form[data-form-name="riego-chamizal"]');
+    if (!form) return;
 
-// ------------------- Funciones -------------------
+    // 👇 Usa la URL de tu API (ajusta si es diferente)
+    const API_URL = '/formularios/api/riego-chamizal/';
+    let isSubmitting = false;
 
-// Guardar formulario offline
-async function saveFormOffline(formName, data) {
-    await db.formularios.add({ formName, data, timestamp: new Date() });
-    console.log(`✔ ${formName} guardado offline`);
-    await showPendingForms();
-}
+    // --- IndexedDB ---
+    const openDB = () => {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('RiegoOfflineDB', 1);
+            req.onerror = () => reject(req.error);
+            req.onsuccess = () => resolve(req.result);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('pendientes')) {
+                    db.createObjectStore('pendientes', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+        });
+    };
 
-// Mostrar formularios pendientes en consola
-async function showPendingForms() {
-    const items = await db.formularios.toArray();
-    console.clear();
-    if (items.length === 0) {
-        console.log("✅ No hay formularios pendientes");
-        return;
-    }
-    console.log("📋 Formularios pendientes de sincronizar:");
-    items.forEach(item => {
-        console.log(`- ${item.formName}, guardado el ${item.timestamp}`, item.data);
-    });
-}
+    const guardarPendiente = async (datos) => {
+        const db = await openDB();
+        const tx = db.transaction('pendientes', 'readwrite');
+        const store = tx.objectStore('pendientes');
+        await store.add({ datos, timestamp: Date.now() });
+        await tx.complete;
+    };
 
-// Borrar un formulario por ID
-async function deleteFormById(id) {
-    await db.formularios.delete(id);
-    console.log(`🗑️ Formulario con id ${id} borrado tras sincronización exitosa`);
-}
+    const obtenerPendientes = async () => {
+        const db = await openDB();
+        const tx = db.transaction('pendientes', 'readonly');
+        const store = tx.objectStore('pendientes');
+        return new Promise(resolve => {
+            const pendientes = [];
+            store.openCursor().onsuccess = (e) => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    pendientes.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(pendientes);
+                }
+            };
+        });
+    };
 
-// ------------------- Sincronización -------------------
-async function syncForms() {
-    if (!navigator.onLine) return; // solo si hay conexión
+    const eliminarPendiente = async (id) => {
+        const db = await openDB();
+        const tx = db.transaction('pendientes', 'readwrite');
+        const store = tx.objectStore('pendientes');
+        store.delete(id);
+        await tx.complete;
+    };
 
-    const items = await db.formularios.toArray();
-
-    for (let item of items) {
-        const endpoint = `/formularios/api/${item.formName}/`;
+    // --- Enviar al backend como JSON ---
+    async function enviarAlBackend(datos) {
         try {
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            const response = await fetch(endpoint, {
-                method: "POST",
+            const response = await fetch(API_URL, {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken
+                    'Content-Type': 'application/json',
+                    // No necesitas CSRF porque usas @csrf_exempt
                 },
-                body: JSON.stringify(item.data),
+                body: JSON.stringify(datos)
             });
 
-            if (response.ok) {
-                console.log(`✅ ${item.formName} sincronizado`);
-                // Borrar solo el formulario que se sincronizó
-                await deleteFormById(item.id);
+            const result = await response.json();
+            if (response.ok && result.status === 'ok') {
+                return true;
             } else {
-                console.log(`⚠️ Error de servidor al sincronizar ${item.formName}. Datos quedan guardados offline.`);
+                console.warn('Error de validación:', result.errors || result.message);
+                return false;
             }
         } catch (err) {
-            console.log(`📡 No se pudo conectar al servidor para ${item.formName}. Datos siguen offline.`, err);
+            console.warn('Error de red:', err);
+            return false;
         }
     }
-}
 
-// ------------------- Manejo de formularios -------------------
-document.addEventListener("DOMContentLoaded", () => {
-    const forms = document.querySelectorAll("form[data-form-name]");
+    // --- Sincronización automática ---
+    async function sincronizarPendientes() {
+        if (!navigator.onLine || isSubmitting) return;
 
-    forms.forEach(form => {
-        form.addEventListener("submit", async (event) => {
-            event.preventDefault();
+        const pendientes = await obtenerPendientes();
+        if (pendientes.length === 0) return;
 
-            const formName = form.dataset.formName;
-            const formData = {};
+        isSubmitting = true;
+        for (const item of pendientes) {
+            const exito = await enviarAlBackend(item.datos);
+            if (exito) {
+                await eliminarPendiente(item.id);
+                console.log('✅ Registro offline sincronizado:', item.id);
+            } else {
+                break; // Detener si falla uno
+            }
+        }
+        isSubmitting = false;
 
-            form.querySelectorAll("input, select, textarea").forEach(field => {
-                const name = field.name;
-                if (!name || name === "csrfmiddlewaretoken") return;
+        if (pendientes.length > 0) {
+            mostrarNotificacion(`✅ ${pendientes.length} registro(s) sincronizado(s)`);
+        }
+    }
 
-                if (field.type === "checkbox") formData[name] = field.checked;
-                else if (field.type === "number") formData[name] = field.value ? Number(field.value) : null;
-                else formData[name] = field.value;
-            });
+    // --- Notificación suave ---
+    function mostrarNotificacion(mensaje) {
+        let notif = document.getElementById('offline-notif');
+        if (!notif) {
+            notif = document.createElement('div');
+            notif.id = 'offline-notif';
+            notif.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 16px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            document.body.appendChild(notif);
+        }
+        notif.textContent = mensaje;
+        notif.style.display = 'block';
+        setTimeout(() => notif.style.display = 'none', 3000);
+    }
 
-            // Guardar offline
-            await saveFormOffline(formName, formData);
+    // --- Intercepta el envío del formulario ---
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
 
-            // Intentar sincronizar si hay conexión
-            if (navigator.onLine) await syncForms();
+        // Obtener datos del formulario como objeto plano
+        const formData = new FormData(form);
+        const datos = Object.fromEntries(formData.entries());
 
-            form.reset();
-        });
+        isSubmitting = true;
+
+        if (navigator.onLine) {
+            const exito = await enviarAlBackend(datos);
+            if (exito) {
+                // Redirigir al menú o mostrar éxito
+                window.location.href = '/menu/'; // o donde quieras ir tras guardar
+            } else {
+                await guardarPendiente(datos);
+                mostrarNotificacion('⚠️ Guardado localmente. Se enviará cuando haya conexión.');
+            }
+        } else {
+            await guardarPendiente(datos);
+            mostrarNotificacion('📱 Sin conexión. Guardado localmente.');
+            // Opcional: form.reset(); // No lo hago porque quizás quieras corregir y reenviar
+        }
+
+        isSubmitting = false;
     });
 
-    // Sincronizar automáticamente al reconectarse
-    window.addEventListener("online", () => {
-        console.log("🌐 Conexión restablecida → sincronizando formularios pendientes...");
-        syncForms();
-    });
+    // --- Sincronizar al cargar y al recuperar conexión ---
+    window.addEventListener('load', sincronizarPendientes);
+    window.addEventListener('online', sincronizarPendientes);
 });
-
