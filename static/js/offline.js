@@ -1,14 +1,12 @@
-// offline.js - Guardado offline para Reporte Riego Chamizal (con API JSON)
-
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('form[data-form-name="riego-chamizal"]');
-    if (!form) return;
+    const submitBtn = form?.querySelector('button[type="submit"]');
+    if (!form || !submitBtn) return;
 
-    // 👇 Usa la URL de tu API (ajusta si es diferente)
     const API_URL = '/formularios/api/riego-chamizal/';
     let isSubmitting = false;
 
-    // --- IndexedDB ---
+    // --- IndexedDB (igual que antes) ---
     const openDB = () => {
         return new Promise((resolve, reject) => {
             const req = indexedDB.open('RiegoOfflineDB', 1);
@@ -57,35 +55,98 @@ document.addEventListener('DOMContentLoaded', () => {
         await tx.complete;
     };
 
-    // --- Enviar al backend como JSON ---
     async function enviarAlBackend(datos) {
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // No necesitas CSRF porque usas @csrf_exempt
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             });
-
             const result = await response.json();
-            if (response.ok && result.status === 'ok') {
-                return true;
-            } else {
-                console.warn('Error de validación:', result.errors || result.message);
-                return false;
-            }
+            return response.ok && result.status === 'ok';
         } catch (err) {
             console.warn('Error de red:', err);
             return false;
         }
     }
 
-    // --- Sincronización automática ---
+    function mostrarNotificacion(mensaje) {
+        let notif = document.getElementById('offline-notif');
+        if (!notif) {
+            notif = document.createElement('div');
+            notif.id = 'offline-notif';
+            notif.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background: #28a745; color: white; padding: 12px 20px;
+                border-radius: 8px; font-size: 16px; z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2); text-align: center;
+            `;
+            document.body.appendChild(notif);
+        }
+        notif.textContent = mensaje;
+        notif.style.display = 'block';
+        setTimeout(() => notif.style.display = 'none', 3000);
+    }
+
+    // ✅ NUEVO: Evita doble envío y comportamiento nativo
+    async function manejarSubmit(e) {
+        e.preventDefault();
+        e.stopPropagation(); // ← Evita burbuja de eventos
+
+        // Si ya se está procesando, ignora
+        if (isSubmitting) return;
+
+        // Desactiva el botón visualmente (mejor UX en móvil)
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Guardando...</span>';
+
+        const formData = new FormData(form);
+        const datos = Object.fromEntries(formData.entries());
+
+        isSubmitting = true;
+
+        if (navigator.onLine) {
+            const exito = await enviarAlBackend(datos);
+            if (exito) {
+                window.location.href = '/menu/';
+            } else {
+                await guardarPendiente(datos);
+                mostrarNotificacion('⚠️ Guardado localmente. Se enviará cuando haya conexión.');
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        } else {
+            await guardarPendiente(datos);
+            mostrarNotificacion('📱 Sin conexión. Guardado localmente.');
+            // Opcional: no limpiar el formulario para que puedan corregir
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+
+        isSubmitting = false;
+    }
+
+    // ✅ Escuchar SOLO el evento 'submit' del formulario (no 'click' del botón)
+    form.addEventListener('submit', manejarSubmit);
+
+    // ✅ Opcional: prevenir toques múltiples en el botón (extra para iOS)
+    if (submitBtn) {
+        let lastTouch = 0;
+        submitBtn.addEventListener('touchstart', (e) => {
+            const now = Date.now();
+            if (now - lastTouch <= 500) {
+                e.preventDefault();
+                return false;
+            }
+            lastTouch = now;
+        });
+    }
+
+    // Sincronización automática
     async function sincronizarPendientes() {
         if (!navigator.onLine || isSubmitting) return;
-
         const pendientes = await obtenerPendientes();
         if (pendientes.length === 0) return;
 
@@ -94,9 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const exito = await enviarAlBackend(item.datos);
             if (exito) {
                 await eliminarPendiente(item.id);
-                console.log('✅ Registro offline sincronizado:', item.id);
             } else {
-                break; // Detener si falla uno
+                break;
             }
         }
         isSubmitting = false;
@@ -106,62 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Notificación suave ---
-    function mostrarNotificacion(mensaje) {
-        let notif = document.getElementById('offline-notif');
-        if (!notif) {
-            notif = document.createElement('div');
-            notif.id = 'offline-notif';
-            notif.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #28a745;
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                font-size: 16px;
-                z-index: 10000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            `;
-            document.body.appendChild(notif);
-        }
-        notif.textContent = mensaje;
-        notif.style.display = 'block';
-        setTimeout(() => notif.style.display = 'none', 3000);
-    }
-
-    // --- Intercepta el envío del formulario ---
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
-
-        // Obtener datos del formulario como objeto plano
-        const formData = new FormData(form);
-        const datos = Object.fromEntries(formData.entries());
-
-        isSubmitting = true;
-
-        if (navigator.onLine) {
-            const exito = await enviarAlBackend(datos);
-            if (exito) {
-                // Redirigir al menú o mostrar éxito
-                window.location.href = '/menu/'; // o donde quieras ir tras guardar
-            } else {
-                await guardarPendiente(datos);
-                mostrarNotificacion('⚠️ Guardado localmente. Se enviará cuando haya conexión.');
-            }
-        } else {
-            await guardarPendiente(datos);
-            mostrarNotificacion('📱 Sin conexión. Guardado localmente.');
-            // Opcional: form.reset(); // No lo hago porque quizás quieras corregir y reenviar
-        }
-
-        isSubmitting = false;
-    });
-
-    // --- Sincronizar al cargar y al recuperar conexión ---
     window.addEventListener('load', sincronizarPendientes);
     window.addEventListener('online', sincronizarPendientes);
 });
