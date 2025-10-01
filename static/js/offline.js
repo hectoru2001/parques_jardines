@@ -1,111 +1,142 @@
-// offline.js - Versión 100% móvil-safe
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form[data-form-name="riego-chamizal"]');
-    const btn = document.getElementById('btn-guardar-offline');
-    if (!form || !btn) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const API_URL = '/formularios/api/riego-chamizal/';
+    const btnGuardar = document.getElementById('btn-guardar-offline');
+    const btnSincronizar = document.getElementById('btn-sincronizar-pendientes');
+    const spanContador = document.getElementById('contador-pendientes');
+    
+    if (!btnGuardar || !btnSincronizar || !spanContador) {
+        console.error('❌ Faltan elementos en el DOM');
+        return;
+    }
 
-    const API_URL = '/formularios/api/guardar-riego-chamizal/';
     let isSubmitting = false;
 
-    // --- IndexedDB (ligero) ---
-    const getDB = () => {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open('RiegoDB', 1);
-            req.onsuccess = () => resolve(req.result);
-            req.onupgradeneeded = (e) => {
-                e.target.result.createObjectStore('pendientes', { autoIncrement: true });
+    // --- Almacenamiento ---
+    function guardarPendiente(datos) {
+        const pendientes = JSON.parse(localStorage.getItem('riego_pendientes') || '[]');
+        pendientes.push({ datos, ts: Date.now() });
+        localStorage.setItem('riego_pendientes', JSON.stringify(pendientes));
+        actualizarBotonSincronizar();
+    }
+
+    function obtenerPendientes() {
+        return JSON.parse(localStorage.getItem('riego_pendientes') || '[]');
+    }
+
+    function limpiarPendientes() {
+        localStorage.removeItem('riego_pendientes');
+        actualizarBotonSincronizar();
+    }
+
+    // ✅ Actualiza visibilidad y contador
+    function actualizarBotonSincronizar() {
+        const pendientes = obtenerPendientes();
+        const cantidad = pendientes.length;
+        console.log(pendientes, cantidad)
+        if (cantidad > 0) {
+            spanContador.textContent = cantidad;
+            btnSincronizar.style.display = 'block';
+        } else {
+            btnSincronizar.style.display = 'none';
+        }
+    }
+
+    // --- Enviar un registro ---
+    function enviar(datos) {
+        return new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', API_URL, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    const ok = xhr.status >= 200 && xhr.status < 300;
+                    try {
+                        const resp = JSON.parse(xhr.responseText || '{}');
+                        resolve(ok && resp.status === 'ok');
+                    } catch {
+                        resolve(false);
+                    }
+                }
             };
-            req.onerror = () => reject(req.error);
+            xhr.send(JSON.stringify(datos));
         });
-    };
+    }
 
-    const guardarPendiente = async (data) => {
-        const db = await getDB();
-        const tx = db.transaction('pendientes', 'readwrite');
-        tx.objectStore('pendientes').add({ data, ts: Date.now() });
-        await tx.complete;
-    };
-
-    const enviar = async (data) => {
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            return res.ok && (await res.json()).status === 'ok';
-        } catch {
-            return false;
-        }
-    };
-
-    const notificar = (msg) => {
-        let el = document.getElementById('notif-offline');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'notif-offline';
-            el.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:12px 20px;border-radius:8px;z-index:10000;font-size:16px;`;
-            document.body.appendChild(el);
-        }
-        el.textContent = msg;
-        el.style.display = 'block';
-        setTimeout(() => el.style.display = 'none', 3000);
-    };
-
-    // ✅ Solo escuchamos el clic del botón (no submit)
-    btn.addEventListener('click', async () => {
+    // --- Sincronizar manualmente ---
+    async function sincronizarPendientes() {
         if (isSubmitting) return;
         isSubmitting = true;
 
-        // Desactivar visualmente
-        const txt = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = 'Guardando...';
+        const pendientes = obtenerPendientes();
+        if (pendientes.length === 0) {
+            actualizarBotonSincronizar();
+            isSubmitting = false;
+            return;
+        }
 
-        const data = {};
-        new FormData(form).forEach((v, k) => data[k] = v);
+        // Cambiar texto del botón
+        const originalText = btnSincronizar.innerHTML;
+        btnSincronizar.innerHTML = `📤 Subiendo ${pendientes.length}...`;
+        btnSincronizar.disabled = true;
+
+        let exitos = 0;
+        for (const item of pendientes) {
+            const exito = await enviar(item.datos);
+            if (exito) {
+                exitos++;
+            } else {
+                alert(`⚠️ Error al subir registro #${exitos + 1}. Deteniendo.`);
+                break;
+            }
+        }
+
+        if (exitos === pendientes.length) {
+            limpiarPendientes();
+            alert('✅ Todos los registros se guardaron en el servidor.');
+        } else {
+            // Actualizar contador con los que quedaron
+            actualizarBotonSincronizar();
+        }
+
+        btnSincronizar.innerHTML = originalText;
+        btnSincronizar.disabled = false;
+        isSubmitting = false;
+    }
+
+    // --- Guardar formulario principal ---
+    btnGuardar.addEventListener('click', async function() {
+        if (isSubmitting) return;
+
+        const form = document.querySelector('form[data-form-name="riego-chamizal"]');
+        const datos = {};
+        new FormData(form).forEach((v, k) => datos[k] = v);
 
         if (navigator.onLine) {
-            if (await enviar(data)) {
+            isSubmitting = true;
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = 'Guardando...';
+
+            const exito = await enviar(datos);
+            isSubmitting = false;
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = 'Guardar Reporte';
+
+            if (exito) {
                 window.location.href = '/menu/';
             } else {
-                await guardarPendiente(data);
-                notificar('⚠️ Guardado local. Se enviará después.');
+                guardarPendiente(datos);
+                alert('⚠️ Guardado localmente. Usa el botón verde para subir después.');
             }
         } else {
-            await guardarPendiente(data);
-            notificar('📱 Sin conexión. Guardado localmente.');
+            guardarPendiente(datos);
+            alert('📱 Sin conexión. Guardado localmente. Usa el botón verde para subir después.');
         }
-
-        btn.disabled = false;
-        btn.innerHTML = txt;
-        isSubmitting = false;
+        form.clear()
     });
 
-    // Sincronizar al recuperar conexión
-    const sincronizar = async () => {
-        if (!navigator.onLine || isSubmitting) return;
-        const db = await getDB();
-        const tx = db.transaction('pendientes', 'readonly');
-        const pendientes = [];
-        tx.objectStore('pendientes').openCursor().onsuccess = e => {
-            const cursor = e.target.result;
-            if (cursor) { pendientes.push(cursor.value); cursor.continue(); }
-        };
-        await tx.complete;
+    // --- Botón de sincronización ---
+    btnSincronizar.addEventListener('click', sincronizarPendientes);
 
-        for (const p of pendientes) {
-            if (await enviar(p.data)) {
-                const d = await getDB();
-                const t = d.transaction('pendientes', 'readwrite');
-                t.objectStore('pendientes').delete(p.key);
-                await t.complete;
-            } else break;
-        }
-        if (pendientes.length > 0) notificar(`✅ ${pendientes.length} sincronizado(s)`);
-    };
-
-    window.addEventListener('online', sincronizar);
-    // Intentar al cargar (si hay conexión)
-    if (navigator.onLine) setTimeout(sincronizar, 1000);
+    // --- Inicializar al cargar ---
+    actualizarBotonSincronizar();
 });
