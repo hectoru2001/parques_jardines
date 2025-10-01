@@ -1,17 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const API_URL = '/formularios/api/riego-chamizal/';
+    const form = document.querySelector('form[data-form-name="riego-chamizal"]');
     const btnGuardar = document.getElementById('btn-guardar-offline');
     const btnSincronizar = document.getElementById('btn-sincronizar-pendientes');
     const spanContador = document.getElementById('contador-pendientes');
-    
-    if (!btnGuardar || !btnSincronizar || !spanContador) {
-        console.error('❌ Faltan elementos en el DOM');
-        return;
-    }
+
+    // Si no hay botón de sincronización, no hay offline
+    if (!btnSincronizar || !spanContador) return;
 
     let isSubmitting = false;
 
-    // --- Almacenamiento ---
+    // --- Almacenamiento offline ---
     function guardarPendiente(datos) {
         const pendientes = JSON.parse(localStorage.getItem('riego_pendientes') || '[]');
         pendientes.push({ datos, ts: Date.now() });
@@ -28,11 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarBotonSincronizar();
     }
 
-    // ✅ Actualiza visibilidad y contador
     function actualizarBotonSincronizar() {
-        const pendientes = obtenerPendientes();
-        const cantidad = pendientes.length;
-        console.log(pendientes, cantidad)
+        const cantidad = obtenerPendientes().length;
         if (cantidad > 0) {
             spanContador.textContent = cantidad;
             btnSincronizar.style.display = 'block';
@@ -41,11 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Enviar un registro ---
+    // --- API para sincronizar offline ---
     function enviar(datos) {
         return new Promise((resolve) => {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', API_URL, true);
+            xhr.open('POST', '/formularios/api/guardar-riego-chamizal/', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -62,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Sincronizar manualmente ---
+    // --- Sincronizar pendientes (solo offline) ---
     async function sincronizarPendientes() {
         if (isSubmitting) return;
         isSubmitting = true;
@@ -74,27 +69,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Cambiar texto del botón
         const originalText = btnSincronizar.innerHTML;
         btnSincronizar.innerHTML = `📤 Subiendo ${pendientes.length}...`;
         btnSincronizar.disabled = true;
 
-        let exitos = 0;
+        let todosExitosos = true;
         for (const item of pendientes) {
             const exito = await enviar(item.datos);
-            if (exito) {
-                exitos++;
-            } else {
-                alert(`⚠️ Error al subir registro #${exitos + 1}. Deteniendo.`);
+            if (!exito) {
+                todosExitosos = false;
+                alert('⚠️ Error al subir un registro. Inténtalo de nuevo.');
                 break;
             }
         }
 
-        if (exitos === pendientes.length) {
+        if (todosExitosos) {
             limpiarPendientes();
             alert('✅ Todos los registros se guardaron en el servidor.');
         } else {
-            // Actualizar contador con los que quedaron
             actualizarBotonSincronizar();
         }
 
@@ -103,40 +95,31 @@ document.addEventListener('DOMContentLoaded', function() {
         isSubmitting = false;
     }
 
-    // --- Guardar formulario principal ---
-    btnGuardar.addEventListener('click', async function() {
-        if (isSubmitting) return;
-
-        const form = document.querySelector('form[data-form-name="riego-chamizal"]');
-        const datos = {};
-        new FormData(form).forEach((v, k) => datos[k] = v);
-
-        if (navigator.onLine) {
-            isSubmitting = true;
-            btnGuardar.disabled = true;
-            btnGuardar.innerHTML = 'Guardando...';
-
-            const exito = await enviar(datos);
-            isSubmitting = false;
-            btnGuardar.disabled = false;
-            btnGuardar.innerHTML = 'Guardar Reporte';
-
-            if (exito) {
-                window.location.href = '/menu/';
-            } else {
-                guardarPendiente(datos);
-                alert('⚠️ Guardado localmente. Usa el botón verde para subir después.');
+    // --- Intercepta el submit SOLO si no hay conexión ---
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Si hay conexión, deja que Django maneje el submit (no hacer nada)
+            if (navigator.onLine) {
+                return; // ✅ Flujo normal de Django
             }
-        } else {
+
+            // Si NO hay conexión, prevenir el submit y guardar offline
+            e.preventDefault();
+            e.stopPropagation();
+
+            const datos = {};
+            new FormData(form).forEach((v, k) => datos[k] = v);
+
             guardarPendiente(datos);
             alert('📱 Sin conexión. Guardado localmente. Usa el botón verde para subir después.');
-        }
-        form.clear()
-    });
+        });
+    }
 
     // --- Botón de sincronización ---
-    btnSincronizar.addEventListener('click', sincronizarPendientes);
+    if (btnSincronizar) {
+        btnSincronizar.addEventListener('click', sincronizarPendientes);
+    }
 
-    // --- Inicializar al cargar ---
+    // --- Inicializar botón al cargar ---
     actualizarBotonSincronizar();
 });
