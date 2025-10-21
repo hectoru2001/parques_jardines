@@ -25,7 +25,8 @@ function ValidaSuperficieAtendida() {
 
 document.querySelector('form').addEventListener('submit', function(e){
     if(!ValidaSuperficieAtendida()){
-        e.preventDefault(); // Detiene el submit si hay errores
+        e.preventDefault();
+        e.stopImmediatePropagation();
     }
 });
 

@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             guardarPendiente(formName, datos);
             alert('📱 Sin conexión. Guardado localmente. Usa el botón verde para subir después.');
+
         });
 
         // Botón de sincronización

@@ -17,11 +17,11 @@ document.getElementById("print-selected-riego-chamizal").addEventListener("click
     });
 
     if (ids.length === 0) {
-        alert("Selecciona al menos un reporte.");
+        showModal("Selecciona al menos un reporte.", 'alert');
         return;
     }
     if (ids.length > 4) {
-        alert("Solo puedes imprimir máximo 4 reportes por hoja.");
+        showModal("Solo puedes imprimir máximo 4 reportes por hoja.", 'alert');
         return;
     }
 
@@ -35,7 +35,7 @@ function ValidaSuperficieAtendida() {
     document.getElementById("id_papel_m2").classList.remove("is-invalid");
 
     if (v1 > comparacion) {
-        alert("La suma (" + v1 + ") no puede ser mayor que la superficie total (" + comparacion + ").");
+        showModal("La suma (" + v1 + ") no puede ser mayor que la superficie total (" + comparacion + ").", 'alert');
 
         document.getElementById("id_papel_m2").classList.add("is-invalid");
         return false;
