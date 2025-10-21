@@ -21,3 +21,10 @@ function ValidaSuperficieAtendida() {
     }
     return true;
 }
+
+document.querySelector('form').addEventListener('submit', function(e){
+    if(!ValidaSuperficieAtendida()){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    }
+});
