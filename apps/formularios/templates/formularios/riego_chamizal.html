@@ -8,7 +8,8 @@
 <div class="container mt-4">
 
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="riego-chamizal">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="riego-chamizal" onsubmit="return ValidaSuperficieAtendida();">
+        {% csrf_token %}
 
         <!-- Encabezado -->
         <h2 class="text-center mb-4 p-2 rounded shadow-sm"
@@ -110,18 +111,11 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 <script src="{% static 'js/riego_chamizal.js' %}"></script>
-<script src="{% static 'js/offline.js' %}"></script>
-
-<!-- Botón de sincronización con contador -->
-<button id="btn-sincronizar-pendientes" 
-        style="display: none; position: fixed; bottom: 20px; right: 20px; 
-               background: #28a745; color: white; border: none; padding: 12px 16px; 
-               border-radius: 50px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 9999;">
-    📤 Subir <span id="contador-pendientes">0</span> registro(s) pendiente(s)
-</button>
 
 </button>
 {% endblock %}

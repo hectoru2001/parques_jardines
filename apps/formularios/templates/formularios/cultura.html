@@ -13,7 +13,7 @@
         CULTURA SUSTENTABLE
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="cultura">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -151,6 +151,8 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 

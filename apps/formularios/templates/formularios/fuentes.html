@@ -13,7 +13,7 @@
         CUADRILLA DE FUENTES
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm" onsubmit="return ValidaSuperficieAtendida();">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="fuentes" onsubmit="return ValidaSuperficieAtendida();">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -107,6 +107,8 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 <script src="{% static 'js/fuentes.js' %}"></script>

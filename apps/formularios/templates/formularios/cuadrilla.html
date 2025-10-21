@@ -13,7 +13,7 @@
         REPORTE DE CUADRILLA
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm" onsubmit="return ValidaSuperficieAtendida();">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="cuadrilla">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -44,7 +44,7 @@
                     style="background-color: #831f46; font-size: 1rem;">
                 Tipo de Trabajo
             </legend>
-            <div class="row g-3">
+            <div class="row g-3" id="valida-pac">
                 <div class="col-md-4">
                     {{ form.trabajo_diario.label_tag}}
                     {{ form.trabajo_diario }}
@@ -58,9 +58,12 @@
                     {{ form.operativo_especial }}
                 </div>
             </div>
+            <div class="row g-12 mt-2 mx-1" id="operativo-comentarios">
+                Especifique el lugar del operativo {{ form.operativo_comentarios }}
+            </div>
         </fieldset>
 
-        <div class="row g-4 logica-seleccion">
+        <div class="row g-4">
             <!-- Primer fieldset -->
             <fieldset class="border rounded p-3 col-md-6">
                 <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
@@ -75,7 +78,7 @@
                     {{ form.encargado_cuadrilla.label_tag }}
                     {{ form.encargado_cuadrilla }}
                 </div>
-                <div class="row g-3">
+                <div id="list-checkboxes" class="row g-3 ">
                     <div class="col-md-12">
                         <div class="row align-items-center">
                             <div class="col-6">
@@ -240,6 +243,8 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 <script src="{% static 'js/checkboxes.js' %}"></script>

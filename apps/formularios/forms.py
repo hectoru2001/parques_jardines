@@ -3,6 +3,7 @@ from .models import *
 
 
 DIAS_SEMANA = [
+    ("", "----------"),
     ("lunes", "Lunes"),
     ("martes", "Martes"),
     ("miércoles", "Miércoles"),
@@ -13,6 +14,7 @@ DIAS_SEMANA = [
 ]
 
 DISTRITOS = [
+    ("", "----------"),
     ("1", "1"),
     ("2", "2"),
     ("3", "3"),
@@ -20,6 +22,13 @@ DISTRITOS = [
     ("5", "5"),
     ("6", "6"),
 ]
+
+COORDINADORES = [
+    ("", "----------"),
+    ('Julio Martínez Muruato', 'Julio Martínez Muruato'),
+    ('Jose Luis Barraza', 'Jose Luis Barraza'),
+]
+
 
 
 # Estilo de formularios con Bootstrap
@@ -54,6 +63,8 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -90,6 +101,7 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
         }
 
 
+
 class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
     class Meta:
@@ -112,6 +124,8 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -157,6 +171,7 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
 
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
         }
         labels = {
@@ -192,6 +207,8 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
 
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -242,7 +259,9 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
 
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
-            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),         
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),        
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -300,6 +319,8 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             # Selected
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -352,6 +373,7 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
             "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"})
 
 
         }

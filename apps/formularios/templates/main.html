@@ -181,6 +181,27 @@
                 </a>
             </div>
         </div>
+
+        <!-- Soldadura -->
+        <div class="report-card" data-category="riego">
+            <div class="card-preview">
+                <div class="card-overlay">
+                    <i class="fa-solid fa-screwdriver-wrench fa-3x"></i>
+                    <h3>Reporte Soldadura</h3>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i>
+                </a>
+                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-check"></i>
+                </a>
+                <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Riego Pipa" class="btn btn-outline-primary preview-btn">
+                    <i class="bi bi-eye"></i> 
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 

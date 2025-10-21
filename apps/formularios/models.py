@@ -1,13 +1,15 @@
 from django.db import models
 
 class ReporteCuadrilla(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField(blank=True, null=True)
 
     # Datos generales
     distrito = models.CharField(max_length=100)
-    dia = models.CharField(max_length=20, blank=True)
+    dia = models.CharField(max_length=20)
     fecha = models.DateField()
-    trabajo_realizado = models.TextField(blank=True, null=True)
+
+    trabajo_realizado = models.TextField()
+    pendientes = models.TextField()
 
     coordinador = models.CharField(max_length=100)
     encargado_cuadrilla = models.CharField(max_length=100)
@@ -24,22 +26,22 @@ class ReporteCuadrilla(models.Model):
 
 
     # Superficies y trabajos
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    cesped_cortado_m2 = models.IntegerField(default=0)
-    deshierbe_m2 = models.IntegerField(default=0)
-    arboles_plantados = models.IntegerField(default=0)
-    arboles_podados = models.IntegerField(default=0)
-    arboles_retirados = models.IntegerField(default=0)
-    zacate_basura_kilos = models.IntegerField(default=0)
-    escombro_kilos = models.IntegerField(default=0)
-    llantas_recolectadas = models.IntegerField(default=0)
-    papeleo_m2 = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    superficie_atendida_m2 = models.IntegerField()
+    cesped_cortado_m2 = models.IntegerField()
+    deshierbe_m2 = models.IntegerField()
+    arboles_plantados = models.IntegerField()
+    arboles_podados = models.IntegerField()
+    arboles_retirados = models.IntegerField()
+    zacate_basura_kilos = models.IntegerField()
+    escombro_kilos = models.IntegerField()
+    llantas_recolectadas = models.IntegerField()
+    papeleo_m2 = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
     #Recursos
-    equipo_utilizado = models.TextField(blank=True, null=True)
-    material_utilizado = models.TextField(blank=True, null=True)
-    vehiculos_utilizados = models.TextField(blank=True, null=True)
+    equipo_utilizado = models.TextField()
+    material_utilizado = models.TextField()
+    vehiculos_utilizados = models.TextField()
 
     # Evaluaciones de condición (opciones SI/NO/MALO/REGULAR/BUENO/EXCELENTE)
     OPCIONES_EVALUACION = [
@@ -70,17 +72,17 @@ class ReporteCuadrilla(models.Model):
     # Observaciones
     observaciones_parque = models.TextField(blank=True, null=True)
     otras_observaciones = models.TextField(blank=True, null=True)
-    pendientes = models.TextField(blank=True, null=True)
 
     # Ubicación
-    ubicacion_area = models.CharField(max_length=200, blank=True, null=True)
-    colonia_camellon = models.CharField(max_length=200, blank=True, null=True)
-    calle = models.CharField(max_length=200, blank=True, null=True)
+    ubicacion_area = models.CharField(max_length=200)
+    colonia_camellon = models.CharField(max_length=200)
+    calle = models.CharField(max_length=200)
 
     # Tipo de trabajo
     trabajo_diario = models.BooleanField(default=False)
     trabajo_ciudadania = models.BooleanField(default=False)
     operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
 
 
     def __str__(self):
@@ -88,7 +90,8 @@ class ReporteCuadrilla(models.Model):
 
 
 class ReporteChamizal(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField(blank=True, null=True)
+
 
     distrito = models.CharField(max_length=100)
     fecha = models.DateField()
@@ -97,6 +100,8 @@ class ReporteChamizal(models.Model):
     trabajo_diario = models.BooleanField(default=False)
     trabajo_ciudadania = models.BooleanField(default=False)
     operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
+
 
     coordinador = models.CharField(max_length=100)
     encargado_cuadrilla = models.CharField(max_length=100)
@@ -107,85 +112,88 @@ class ReporteChamizal(models.Model):
     otros = models.CharField(max_length=20, blank=True, null=True)
     otros_bool = models.BooleanField(default=False)
 
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    cesped_cortado_m2 = models.IntegerField(default=0)
-    deshierbe_m2 = models.IntegerField(default=0)
-    arboles_plantados = models.IntegerField(default=0)
-    arboles_podados = models.IntegerField(default=0)
-    arboles_retirados = models.IntegerField(default=0)
-    zacate_basura_kilos = models.IntegerField(default=0)
-    papeleo_m2 = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    superficie_atendida_m2 = models.IntegerField()
+    cesped_cortado_m2 = models.IntegerField()
+    deshierbe_m2 = models.IntegerField()
+    arboles_plantados = models.IntegerField()
+    arboles_podados = models.IntegerField()
+    arboles_retirados = models.IntegerField()
+    zacate_basura_kilos = models.IntegerField()
+    papeleo_m2 = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
-    trabajo_realizado = models.TextField(blank=True, null=True)
-    pendientes = models.TextField(blank=True, null=True)
-    observaciones = models.TextField(blank=True, null=True)
+    trabajo_realizado = models.TextField()
+    pendientes = models.TextField()
+    observaciones = models.TextField()
 
-    ubicacion_area = models.CharField(max_length=200, blank=True, null=True)
+    ubicacion_area = models.CharField()
 
-    equipo_utilizado = models.TextField(blank=True, null=True)
-    material_utilizado = models.TextField(blank=True, null=True)
-    vehiculos_utilizados = models.TextField(blank=True, null=True)
+    equipo_utilizado = models.TextField()
+    material_utilizado = models.TextField()
+    vehiculos_utilizados = models.TextField()
 
     def __str__(self):
         return f"Reporte Chamizal"
 
 class ReporteCultura(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField()
+
 
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
-    encargado = models.CharField(max_length=100, blank=True)
-    lugar = models.CharField(max_length=100, blank=True)
+    dia = models.CharField(max_length=20)
+    encargado = models.CharField(max_length=100)
+    lugar = models.CharField(max_length=100)
 
-    personas_beneficiadas = models.IntegerField(default=0)
-    escuela_atendida = models.CharField(max_length=100, blank=True)
-    maquiladora_atendida = models.CharField(max_length=100, blank=True)
-    platica_sustentabilidad = models.CharField(max_length=100, blank=True)
-    curso_poda = models.CharField(max_length=100, blank=True)
-    comite_parque = models.CharField(max_length=100, blank=True)
+    personas_beneficiadas = models.IntegerField()
+    escuela_atendida = models.CharField(max_length=100)
+    maquiladora_atendida = models.CharField(max_length=100)
+    platica_sustentabilidad = models.CharField(max_length=100)
+    curso_poda = models.CharField(max_length=100)
+    comite_parque = models.CharField(max_length=100)
 
-    colonia = models.CharField(max_length=100, blank=True)
-    calle1 = models.CharField(max_length=100, blank=True)
-    calle2 = models.CharField(max_length=100, blank=True)
-    calle3 = models.CharField(max_length=100, blank=True)
-    calle4 = models.CharField(max_length=100, blank=True)
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
+    calle3 = models.CharField(max_length=100)
+    calle4 = models.CharField(max_length=100)
 
-    observaciones = models.TextField(blank=True, null=True)
+    observaciones = models.TextField()
     responsable = models.CharField(max_length=100, blank=True)
     nombre_ciudadano = models.CharField(max_length=100, blank=True)
 
 class ReporteFuentes(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField()
+
 
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
-    coordinador = models.CharField(max_length=100, blank=True)
-    encargado = models.CharField(max_length=100, blank=True)
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    limpieza_papeleo_m2 = models.IntegerField(default=0)
-    reparacion_tuberia = models.IntegerField(default=0)
-    basura_kg = models.IntegerField(default=0)
+    dia = models.CharField(max_length=20)
+    coordinador = models.CharField(max_length=100)
+    encargado = models.CharField(max_length=100)
+    superficie_atendida_m2 = models.IntegerField()
+    limpieza_papeleo_m2 = models.IntegerField()
+    reparacion_tuberia = models.IntegerField()
+    basura_kg = models.IntegerField()
 
-    reparacion_bomba = models.IntegerField(default=0)
-    instalacion_bomba = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    reparacion_bomba = models.IntegerField()
+    instalacion_bomba = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
-    colonia = models.CharField(max_length=100, blank=True)
-    calle1 = models.CharField(max_length=100, blank=True)
-    calle2 = models.CharField(max_length=100, blank=True)
-    observaciones = models.TextField(blank=True, null=True)
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
+    observaciones = models.TextField()
 
 class ReporteFugas(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField(blank=True, null=True)
 
     distrito = models.CharField(max_length=100)
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
+    dia = models.CharField(max_length=20)
 
     trabajo_diario = models.BooleanField(default=False)
     trabajo_ciudadania = models.BooleanField(default=False)
     operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
 
     coordinador = models.CharField(max_length=100)
     encargado_cuadrilla = models.CharField(max_length=100)
@@ -198,37 +206,40 @@ class ReporteFugas(models.Model):
     otros = models.CharField(max_length=20, blank=True, null=True)
     otros_cant = models.BooleanField(default=False)
 
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    reparacion_fugas = models.IntegerField(default=0)
-    instalacion_agua = models.IntegerField(default=0)
-    instalacion_riego = models.IntegerField(default=0)
-    revision_riego = models.IntegerField(default=0)
-    material_riego = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    superficie_atendida_m2 = models.IntegerField()
+    reparacion_fugas = models.IntegerField()
+    instalacion_agua = models.IntegerField()
+    instalacion_riego = models.IntegerField()
+    revision_riego = models.IntegerField()
+    material_riego = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
-    trabajo_realizado = models.TextField(blank=True, null=True)
-    pendientes = models.TextField(blank=True, null=True)
-    observaciones = models.TextField(blank=True, null=True)
+    trabajo_realizado = models.TextField()
+    pendientes = models.TextField()
+    observaciones = models.TextField()
 
-    colonia = models.CharField(max_length=100, blank=True)
-    calle1 = models.CharField(max_length=100, blank=True)
-    calle2 = models.CharField(max_length=100, blank=True)
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
 
-    equipo_utilizado = models.TextField(blank=True, null=True)
-    material_utilizado = models.TextField(blank=True, null=True)
-    vehiculos_utilizados = models.TextField(blank=True, null=True)
+    equipo_utilizado = models.TextField()
+    material_utilizado = models.TextField()
+    vehiculos_utilizados = models.TextField()
 
 class ReportePintura(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField(blank=True, null=True)
+
 
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
+    dia = models.CharField(max_length=20)
     distrito = models.CharField(max_length=100)
-    encargado = models.CharField(max_length=100, blank=True)
-    coordinador = models.CharField(max_length=100, blank=True)
+    encargado = models.CharField(max_length=100)
+    coordinador = models.CharField(max_length=100)
+
     trabajo_diario = models.BooleanField(default=False)
     trabajo_ciudadania = models.BooleanField(default=False)
     operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
 
     comunitarios_atendidos = models.BooleanField(default=False)
     municipales_atendidos = models.BooleanField(default=False)
@@ -238,72 +249,74 @@ class ReportePintura(models.Model):
     otros = models.CharField(max_length=20, blank=True, null=True)
     otros_cant = models.BooleanField(default=False)
 
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    bancas_cemento = models.IntegerField(default=0)
-    bancas_metalicas = models.IntegerField(default=0)
-    multijuegos = models.IntegerField(default=0)
-    resvaladeros = models.IntegerField(default=0)
-    sube_baja = models.IntegerField(default=0)
-    columpios = models.IntegerField(default=0)
-    pasamanos = models.IntegerField(default=0)
-    juego_esferas = models.IntegerField(default=0)
-    canchas = models.IntegerField(default=0)
-    porterias = models.IntegerField(default=0)
-    encalado_arboles = models.IntegerField(default=0)
-    levantado_malla = models.IntegerField(default=0)
-    reposicion_malla = models.IntegerField(default=0)
-    pintura_utilizada_litros = models.IntegerField(default=0)
-    thinner_utilizado_litros = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    superficie_atendida_m2 = models.IntegerField()
+    bancas_cemento = models.IntegerField()
+    bancas_metalicas = models.IntegerField()
+    multijuegos = models.IntegerField()
+    resvaladeros = models.IntegerField()
+    sube_baja = models.IntegerField()
+    columpios = models.IntegerField()
+    pasamanos = models.IntegerField()
+    juego_esferas = models.IntegerField()
+    canchas = models.IntegerField()
+    porterias = models.IntegerField()
+    encalado_arboles = models.IntegerField()
+    levantado_malla = models.IntegerField()
+    reposicion_malla = models.IntegerField()
+    pintura_utilizada_litros = models.IntegerField()
+    thinner_utilizado_litros = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
-    trabajo_realizado = models.TextField(blank=True, null=True)
-    pendientes = models.TextField(blank=True, null=True)
-    observaciones = models.TextField(blank=True, null=True)
+    trabajo_realizado = models.TextField()
+    pendientes = models.TextField()
+    observaciones = models.TextField()
 
-    colonia = models.CharField(max_length=100, blank=True)
-    calle1 = models.CharField(max_length=100, blank=True)
-    calle2 = models.CharField(max_length=100, blank=True)
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
 
-    equipo_utilizado = models.TextField(blank=True, null=True)
-    material_utilizado = models.TextField(blank=True, null=True)
-    vehiculos_utilizados = models.TextField(blank=True, null=True)
+    equipo_utilizado = models.TextField()
+    material_utilizado = models.TextField()
+    vehiculos_utilizados = models.TextField()
 
 
 class ReporteRiegoChamizal(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField(blank=True, null=True)
+
 
     riego_en = models.CharField(max_length=100)
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
-    encargado = models.CharField(max_length=100, blank=True)
+    dia = models.CharField(max_length=20)
+    encargado = models.CharField(max_length=100)
 
-    superficie_atendida_m2 = models.IntegerField(default=0)
-    reparacion_fugas = models.IntegerField(default=0)
-    limpieza_aspersores = models.IntegerField(default=0)
-    basura_recolectada = models.IntegerField(default=0)
-    papel_m2 = models.IntegerField(default=0)
-    personal_trabajo = models.IntegerField(default=0)
+    superficie_atendida_m2 = models.IntegerField()
+    reparacion_fugas = models.IntegerField()
+    limpieza_aspersores = models.IntegerField()
+    basura_recolectada = models.IntegerField()
+    papel_m2 = models.IntegerField()
+    personal_trabajo = models.IntegerField()
 
-    ubicacion_area = models.CharField(max_length=200, blank=True, null=True)
-    observaciones = models.TextField(blank=True, null=True)
+    ubicacion_area = models.CharField(max_length=200)
+    observaciones = models.TextField()
 
 class ReporteRiegoPipas(models.Model):
-    folio_pac = models.IntegerField(default=1)
+    folio_pac = models.IntegerField()
+
 
     fecha = models.DateField()
-    dia = models.CharField(max_length=20, blank=True)
-    nombre_chofer = models.CharField(max_length=100, blank=True)
-    nombre_ayudante = models.CharField(max_length=100, blank=True)
-    engomado_vehiculo = models.CharField(max_length=100, blank=True)
+    dia = models.CharField(max_length=20)
+    nombre_chofer = models.CharField(max_length=100)
+    nombre_ayudante = models.CharField(max_length=100)
+    engomado_vehiculo = models.CharField(max_length=100)
     hora_salida = models.TimeField()
     hora_regreso = models.TimeField()
-    lugar_riego = models.CharField(max_length=100, blank=True)
+    lugar_riego = models.CharField(max_length=100)
 
-    colonia = models.CharField(max_length=100, blank=True)
-    calle1 = models.CharField(max_length=100, blank=True)
-    calle2 = models.CharField(max_length=100, blank=True)
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
 
-    viajes = models.IntegerField(default=0)
-    agua_empleada_litros = models.IntegerField(default=0)
+    viajes = models.IntegerField()
+    agua_empleada_litros = models.IntegerField()
 
-    observaciones = models.TextField(blank=True, null=True)
+    observaciones = models.TextField()

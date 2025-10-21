@@ -13,7 +13,7 @@
         CUADRILLA DE PINTURA
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="pintura"">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -58,6 +58,9 @@
                     {{ form.operativo_especial }}
                 </div>
             </div>
+            <div class="row g-12 mt-2 mx-1" id="operativo-comentarios">
+                Especifique el lugar del operativo {{ form.operativo_comentarios }}
+            </div>
         </fieldset>
 
         <div class="row g-4 logica-seleccion">
@@ -75,7 +78,7 @@
                     {{ form.encargado.label_tag }}
                     {{ form.encargado }}
                 </div>
-                <div class="row g-3">
+                <div class="row g-3" id="list-checkboxes">
                     <div class="col-md-12">
                         <div class="row align-items-center">
                             <div class="col-6">
@@ -139,7 +142,7 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
             </fieldset>
 
             <!-- Segundo fieldset -->
@@ -223,6 +226,8 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 <script src="{% static 'js/checkboxes.js' %}"></script>

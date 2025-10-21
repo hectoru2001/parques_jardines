@@ -42,6 +42,8 @@ def formato_cuadrilla(request):
         if form.is_valid():
             form.save()
             return redirect("lista_cuadrillas")
+        else:
+            print(form.erros)
     else:
         form = ReporteCuadrillaForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -58,6 +60,8 @@ def formato_chamizal(request):
         if form.is_valid():
             form.save()
             return redirect("lista_chamizal")
+        else:
+            print(form.errors)
     else:
         form = ReporteChamizalForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -74,6 +78,8 @@ def formato_cultura(request):
         if form.is_valid():
             form.save()
             return redirect("lista_cultura")
+        else:
+            print(form.errors)
     else:
         form = ReporteCulturaForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -90,6 +96,8 @@ def formato_fuentes(request):
         if form.is_valid():
             form.save()
             return redirect("lista_fuentes")
+        else:
+            print(form.erros)
     else:
         form = ReporteFuentesForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -106,6 +114,8 @@ def formato_fugas(request):
         if form.is_valid():
             form.save()
             return redirect("lista_fugas")
+        else:
+            print(form.errors)
     else:
         form = ReporteFugasForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -122,6 +132,8 @@ def formato_pinturas(request):
         if form.is_valid():
             form.save()
             return redirect("lista_pinturas")
+        else:
+            print(form.errors)
     else:
         form = ReportePinturasForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -418,7 +430,7 @@ def generar_pdf_cuadrilla(request, pk):
 
     #Cuarta fila
     page.insert_text((138, 155), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((420, 160), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((420, 160), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     #Quinta fila - izquierda
     draw_checkbox(page, 264, 196, reporte.parques_comunitarios)
@@ -1168,17 +1180,31 @@ def generar_pdf_riego_pipa_multiple(request, ids):
 
 # ===================== Funcionamiento offline =======================
 
+FORMULARIOS = {
+    'cuadrilla': ReporteCuadrillaForm,
+    'chamizal': ReporteChamizalForm,
+    'cultura': ReporteCulturaForm,
+    'fuentes': ReporteFuentesForm,
+    'fugas': ReporteFugasForm,
+    'pinturas': ReportePinturasForm,
+    'riego_chamizal': ReporteRiegoChamizalForm,
+    'riego_pipa': ReporteRiegoPipasForm,
+}
+
 @csrf_exempt
 @require_POST
-def api_guardar_riego_chamizal(request):
+def api_guardar_generico(request, form_name):
     try:
+        form_class = FORMULARIOS.get(form_name)
+        if not form_class:
+            return JsonResponse({'status': 'error', 'message': 'Formulario no encontrado'}, status=404)
+
         data = json.loads(request.body)
-        form = ReporteRiegoChamizalForm(data)
+        form = form_class(data)
         if form.is_valid():
             instance = form.save()
             return JsonResponse({'status': 'ok', 'id': instance.id}, status=201)
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     except Exception as e:
-        # Aquí podrás ver el error exacto
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

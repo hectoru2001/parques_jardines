@@ -13,7 +13,7 @@
         REPORTE DE CHAMIZAL
     </h2>
 
-    <form method="post" class="bg-light p-4 rounded shadow-sm" onsubmit="return ValidaSuperficieAtendida();"">
+    <form method="post" class="bg-light p-4 rounded shadow-sm" data-form-name="chamizal" onsubmit="return ValidaSuperficieAtendida();">
         {% csrf_token %}
 
         <!-- Datos Generales -->
@@ -44,7 +44,7 @@
                     style="background-color: #831f46; font-size: 1rem;">
                 Tipo de Trabajo
             </legend>
-            <div class="row g-3">
+            <div class="row g-3 ">
                 <div class="col-md-4">
                     {{ form.trabajo_diario.label_tag}}
                     {{ form.trabajo_diario }}
@@ -57,6 +57,9 @@
                     {{ form.operativo_especial.label_tag }}
                     {{ form.operativo_especial }}
                 </div>
+            </div>
+            <div class="row g-12 mt-2 mx-1" id="operativo-comentarios">
+                Especifique el lugar del operativo {{ form.operativo_comentarios }}
             </div>
         </fieldset>
 
@@ -77,7 +80,7 @@
                     Tipo de Área Atendida
                 </legend>
 
-                <div class="row g-3">
+                <div class="row g-3" id="list-checkboxes">
                     <div class="col-md-12">
                         <div class="row align-items-center">
                             <div class="col-6">
@@ -131,7 +134,7 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
                     <legend class="fw-bold text-white mt-2 px-3 py-1 rounded text-center" style="background-color: #831f46; font-size: 1rem;">
                         Actividades Realizadas
                     </legend>
@@ -198,6 +201,8 @@
                 Guardar Reporte
             </button>
         </div>
+
+        {% include 'btn-subir-off.html' %}
     </form>
 </div>
 <script src="{% static 'js/checkboxes.js' %}"></script>

@@ -59,7 +59,8 @@ urlpatterns = [
 
 
     #Funcionamiento offline
-    path('api/riego-chamizal/', views.api_guardar_riego_chamizal, name='api_guardar_riego_chamizal'),
+    path('api/<str:form_name>/', views.api_guardar_generico,),
+
 
 
 ]

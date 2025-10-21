@@ -20,17 +20,16 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'img/LogMuni.ico' %}">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Archivo general de funciones de la aplicación -->
+    <script src="{% static 'js/general.js' %}"></script>
 
-    <!-- Leaflet CSS y JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Funcion general para guardar sin conexión -->
+    <script src="{% static 'js/offline.js' %}"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <!-- Librería de mensaje de alerta de SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="{% static 'js/dexie.min.js' %}"></script>
+
 
 
     {% block extra_head %}{% endblock %}

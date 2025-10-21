@@ -1,46 +1,40 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form[data-form-name="riego-chamizal"]');
-    const btnGuardar = document.getElementById('btn-guardar-offline');
-    const btnSincronizar = document.getElementById('btn-sincronizar-pendientes');
-    const spanContador = document.getElementById('contador-pendientes');
 
-    // Si no hay botón de sincronización, no hay offline
-    if (!btnSincronizar || !spanContador) return;
-
-    let isSubmitting = false;
-
-    // --- Almacenamiento offline ---
-    function guardarPendiente(datos) {
-        const pendientes = JSON.parse(localStorage.getItem('riego_pendientes') || '[]');
+    // --- Funciones de almacenamiento offline ---
+    function guardarPendiente(formName, datos) {
+        const key = `${formName}_pendientes`;
+        const pendientes = JSON.parse(localStorage.getItem(key) || '[]');
         pendientes.push({ datos, ts: Date.now() });
-        localStorage.setItem('riego_pendientes', JSON.stringify(pendientes));
-        actualizarBotonSincronizar();
+        localStorage.setItem(key, JSON.stringify(pendientes));
+        actualizarBotonSincronizar(formName);
     }
 
-    function obtenerPendientes() {
-        return JSON.parse(localStorage.getItem('riego_pendientes') || '[]');
+    function obtenerPendientes(formName) {
+        const key = `${formName}_pendientes`;
+        return JSON.parse(localStorage.getItem(key) || '[]');
     }
 
-    function limpiarPendientes() {
-        localStorage.removeItem('riego_pendientes');
-        actualizarBotonSincronizar();
+    function limpiarPendientes(formName) {
+        const key = `${formName}_pendientes`;
+        localStorage.removeItem(key);
+        actualizarBotonSincronizar(formName);
     }
 
-    function actualizarBotonSincronizar() {
-        const cantidad = obtenerPendientes().length;
-        if (cantidad > 0) {
-            spanContador.textContent = cantidad;
-            btnSincronizar.style.display = 'block';
-        } else {
-            btnSincronizar.style.display = 'none';
-        }
+    function actualizarBotonSincronizar(formName) {
+        const btnSincronizar = document.getElementById(`btnSincronizar`);
+        const spanContador = document.getElementById(`contador-pendientes`);
+        if (!btnSincronizar || !spanContador) return;
+
+        const cantidad = obtenerPendientes(formName).length;
+        spanContador.textContent = cantidad;
+        btnSincronizar.style.display = cantidad > 0 ? 'inline-block' : 'none';
     }
 
-    // --- API para sincronizar offline ---
-    function enviar(datos) {
+    // --- Función de envío (POST) ---
+    function enviar(formName, datos) {
         return new Promise((resolve) => {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/formularios/api/riego-chamizal/', true);
+            xhr.open('POST', `/formularios/api/${formName}/`, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -57,25 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Sincronizar pendientes (solo offline) ---
-    async function sincronizarPendientes() {
-        if (isSubmitting) return;
-        isSubmitting = true;
+    // --- Sincronizar pendientes ---
+    async function sincronizarPendientes(formName) {
+        const btnSincronizar = document.getElementById(`btnSincronizar`);
+        if (!btnSincronizar || btnSincronizar.disabled) return;
 
-        const pendientes = obtenerPendientes();
-        if (pendientes.length === 0) {
-            actualizarBotonSincronizar();
-            isSubmitting = false;
-            return;
-        }
+        const pendientes = obtenerPendientes(formName);
+        if (pendientes.length === 0) return;
 
+        btnSincronizar.disabled = true;
         const originalText = btnSincronizar.innerHTML;
         btnSincronizar.innerHTML = `📤 Subiendo ${pendientes.length}...`;
-        btnSincronizar.disabled = true;
 
         let todosExitosos = true;
         for (const item of pendientes) {
-            const exito = await enviar(item.datos);
+            const exito = await enviar(formName, item.datos);
             if (!exito) {
                 todosExitosos = false;
                 alert('⚠️ Error al subir un registro. Inténtalo de nuevo.');
@@ -84,43 +74,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (todosExitosos) {
-            limpiarPendientes();
+            limpiarPendientes(formName);
             alert('✅ Todos los registros se guardaron en el servidor.');
-            window.location.href = "/formularios/riego_chamizal/lista/"
-        } else {
-            actualizarBotonSincronizar();
+            const redirectUrl = document.querySelector(`form[data-form-name="${formName}"]`)?.dataset.redirect;
+            if (redirectUrl) window.location.href = redirectUrl;
         }
 
         btnSincronizar.innerHTML = originalText;
         btnSincronizar.disabled = false;
-        isSubmitting = false;
+        actualizarBotonSincronizar(formName);
     }
 
-    // --- Intercepta el submit SOLO si no hay conexión ---
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            // Si hay conexión, deja que Django maneje el submit (no hacer nada)
-            if (navigator.onLine) {
-                return; // ✅ Flujo normal de Django
-            }
+    // --- Inicializar formularios ---
+    document.querySelectorAll('form[data-form-name]').forEach(form => {
+        const formName = form.dataset.formName;
+        const btnSincronizar = document.getElementById(`btnSincronizar`);
+        const spanContador = document.getElementById(`contador-pendientes`);
 
-            // Si NO hay conexión, prevenir el submit y guardar offline
+        // Interceptar submit solo si no hay conexión
+        form.addEventListener('submit', function(e) {
+            if (navigator.onLine) return; // flujo normal
+
             e.preventDefault();
             e.stopPropagation();
 
             const datos = {};
             new FormData(form).forEach((v, k) => datos[k] = v);
 
-            guardarPendiente(datos);
+            guardarPendiente(formName, datos);
             alert('📱 Sin conexión. Guardado localmente. Usa el botón verde para subir después.');
         });
-    }
 
-    // --- Botón de sincronización ---
-    if (btnSincronizar) {
-        btnSincronizar.addEventListener('click', sincronizarPendientes);
-    }
+        // Botón de sincronización
+        if (btnSincronizar) {
+            btnSincronizar.addEventListener('click', () => sincronizarPendientes(formName));
+        }
 
-    // --- Inicializar botón al cargar ---
-    actualizarBotonSincronizar();
+        // Inicializar contador al cargar
+        actualizarBotonSincronizar(formName);
+    });
 });
