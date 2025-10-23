@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load usuario_tags %}  {# Asegúrate de que este sea tu template tag #}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
@@ -7,14 +8,14 @@
 
 {% block content %}
 <div class="reports-dashboard">
-    <!-- Header con título y filtro -->
     <div>
         <h1 class="title-primary text-center">Generador de Reportes</h1>
     </div>
 
-    <!-- Grid de tarjetas de reportes -->
     <div class="reports-grid">
+
         <!-- Reporte Cuadrilla -->
+        {% if user|tiene_acceso_reporte:"Reporte Cuadrilla" %}
         <div class="report-card" data-category="mantenimiento">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -23,19 +24,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_cuadrillas' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_cuadrillas' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/cuadrilla.png' %}" data-title="Reporte Cuadrilla" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_cuadrillas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_cuadrillas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/cuadrilla.png' %}" data-title="Reporte Cuadrilla" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
-        
+        {% endif %}
+
         <!-- Reporte Chamizal -->
+        {% if user|tiene_acceso_reporte:"Reporte Chamizal" %}
         <div class="report-card" data-category="mantenimiento">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -44,19 +43,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_chamizal' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_chamizal' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/chamizal.png' %}" data-title="Reporte Chamizal" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_chamizal' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_chamizal' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/chamizal.png' %}" data-title="Reporte Chamizal" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
-        
+        {% endif %}
+
         <!-- Reporte Cultura -->
+        {% if user|tiene_acceso_reporte:"Reporte Cultura" %}
         <div class="report-card" data-category="cultura">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -65,19 +62,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_cultura' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_cultura' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/cultura.png' %}" data-title="Reporte Cultura" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_cultura' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_cultura' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/cultura.png' %}" data-title="Reporte Cultura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Reporte Fuentes -->
+        {% if user|tiene_acceso_reporte:"Reporte Fuentes" %}
         <div class="report-card" data-category="mantenimiento">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -86,19 +81,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_fuentes' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_fuentes' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/fuentes.png' %}" data-title="Reporte Fuentes" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_fuentes' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_fuentes' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/fuentes.png' %}" data-title="Reporte Fuentes" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Reporte Fugas -->
+        {% if user|tiene_acceso_reporte:"Reporte Fugas" %}
         <div class="report-card" data-category="mantenimiento">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -107,19 +100,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_fugas' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_fugas' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/fugas.png' %}" data-title="Reporte Fugas" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_fugas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_fugas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/fugas.png' %}" data-title="Reporte Fugas" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Reporte Pintura -->
+        {% if user|tiene_acceso_reporte:"Reporte Pintura" %}
         <div class="report-card" data-category="mantenimiento">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -128,19 +119,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_pinturas' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_pinturas' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/pintura.png' %}" data-title="Reporte Pintura" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_pinturas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_pinturas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/pintura.png' %}" data-title="Reporte Pintura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Riego Chamizal -->
+        {% if user|tiene_acceso_reporte:"Riego Chamizal" %}
         <div class="report-card" data-category="riego">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -149,19 +138,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_riego_chamizal' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_riego_chamizal' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/riego_chamizal.png' %}" data-title="Riego Chamizal" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_riego_chamizal' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_riego_chamizal' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/riego_chamizal.png' %}" data-title="Riego Chamizal" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Riego Pipa -->
+        {% if user|tiene_acceso_reporte:"Riego Pipa" %}
         <div class="report-card" data-category="riego">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -170,19 +157,17 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Riego Pipa" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Riego Pipa" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
 
         <!-- Soldadura -->
+        {% if user|tiene_acceso_reporte:"Soldadura" %}
         <div class="report-card" data-category="riego">
             <div class="card-preview">
                 <div class="card-overlay">
@@ -191,21 +176,19 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary">
-                    <i class="bi bi-plus"></i>
-                </a>
-                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary">
-                    <i class="bi bi-list-check"></i>
-                </a>
-                <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Riego Pipa" class="btn btn-outline-primary preview-btn">
-                    <i class="bi bi-eye"></i> 
-                </a>
+                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                {% if user|puede_listar %}
+                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
+                {% endif %}
+                <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Soldadura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
+        {% endif %}
+
     </div>
 </div>
 
-<!-- Modal para  de imágenes -->
+<!-- Modal de imágenes -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">

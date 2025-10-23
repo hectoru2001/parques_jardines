@@ -70,11 +70,11 @@ WSGI_APPLICATION = 'parques_jardines.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'parques_jardines',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'HOST': '10.236.62.93',
-        'PORT': '5433',
+        'NAME': 'reportespyj',
+        'USER': 'usr_rep_pyj',
+        'PASSWORD': 'P&JrU5r4dm1',
+        'HOST': '10.236.62.59',
+        'PORT': '5432',
     }
 }
 

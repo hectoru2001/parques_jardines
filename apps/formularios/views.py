@@ -12,7 +12,6 @@ import json
 import fitz  # PyMuPDF
 from io import BytesIO
 
-
 @login_required
 def plantilla(request):
     total_reportes = ReporteCuadrilla.objects.count()
