@@ -56,7 +56,11 @@ urlpatterns = [
     path('riego_pipas/reporte/pdf/<int:pk>/', views.generar_pdf_riego_pipa, name='reporte_pdf_riego_pipas'),
     path('riego_pipas/reporte/pdf-multiple/<str:ids>', views.generar_pdf_riego_pipa_multiple, name='generar_pdf_riego_pipas_multiple'),
 
-
+    #Riego pipas
+    path('soldadura/', views.formato_soldadura, name="generar_soldadura"),
+    path('soldadura/lista/', views.lista_soldadura, name='lista_soldadura'),
+    path('soldadura/editar/<int:pk>', views.formato_soldadura_editar, name="soldadura_editar"),
+    path('soldadura/reporte/pdf/<int:pk>/', views.generar_pdf_soldadura, name='reporte_pdf_soldadura'),
 
     #Funcionamiento offline
     path('api/<str:form_name>/', views.api_guardar_generico,),

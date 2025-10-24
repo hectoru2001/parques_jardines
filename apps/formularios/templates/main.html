@@ -12,6 +12,22 @@
         <h1 class="title-primary text-center">Generador de Reportes</h1>
     </div>
 
+    {% if messages %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' or message.tags == 'danger' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{{ message|escapejs }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        {% endfor %}
+    });
+    </script>
+    {% endif %}
+
+
     <div class="reports-grid">
 
         <!-- Reporte Cuadrilla -->
@@ -25,9 +41,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_cuadrillas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_cuadrillas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/cuadrilla.png' %}" data-title="Reporte Cuadrilla" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -44,9 +58,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_chamizal' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_chamizal' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/chamizal.png' %}" data-title="Reporte Chamizal" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -63,9 +75,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_cultura' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_cultura' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/cultura.png' %}" data-title="Reporte Cultura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -82,9 +92,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_fuentes' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_fuentes' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/fuentes.png' %}" data-title="Reporte Fuentes" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -101,9 +109,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_fugas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_fugas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/fugas.png' %}" data-title="Reporte Fugas" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -120,9 +126,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_pinturas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_pinturas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/pintura.png' %}" data-title="Reporte Pintura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -138,10 +142,8 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_riego_chamizal' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
+                <a href="{% url 'generar_riego_chamizal' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>                
                 <a href="{% url 'lista_riego_chamizal' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/riego_chamizal.png' %}" data-title="Riego Chamizal" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -158,9 +160,7 @@
             </div>
             <div class="card-actions">
                 <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
                 <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
                 <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Riego Pipa" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
         </div>
@@ -168,7 +168,7 @@
 
         <!-- Soldadura -->
         {% if user|tiene_acceso_reporte:"Soldadura" %}
-        <!-- <div class="report-card" data-category="riego">
+        <div class="report-card" data-category="riego">
             <div class="card-preview">
                 <div class="card-overlay">
                     <i class="fa-solid fa-screwdriver-wrench fa-3x"></i>
@@ -176,13 +176,11 @@
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{% url 'generar_riego_pipas' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
-                {% if user|puede_listar %}
-                <a href="{% url 'lista_riego_pipas' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
-                {% endif %}
+                <a href="{% url 'generar_soldadura' %}" class="btn btn-primary"><i class="bi bi-plus"></i></a>
+                <a href="{% url 'lista_soldadura' %}" class="btn btn-secondary"><i class="bi bi-list-check"></i></a>
                 <a href="{% static 'img/vista-previa/riego_pipas.png' %}" data-title="Soldadura" class="btn btn-outline-primary preview-btn"><i class="bi bi-eye"></i></a>
             </div>
-        </div> -->
+        </div>
         {% endif %}
 
     </div>

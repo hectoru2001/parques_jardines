@@ -320,3 +320,52 @@ class ReporteRiegoPipas(models.Model):
     agua_empleada_litros = models.IntegerField()
 
     observaciones = models.TextField()
+
+class ReporteSoldadura(models.Model):
+    folio_pac = models.IntegerField(blank=True, null=True)
+
+
+    fecha = models.DateField()
+    dia = models.CharField(max_length=20)
+    distrito = models.CharField(max_length=100)
+    encargado = models.CharField(max_length=100)
+    coordinador = models.CharField(max_length=100)
+
+    trabajo_diario = models.BooleanField(default=False)
+    trabajo_ciudadania = models.BooleanField(default=False)
+    operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
+
+    comunitarios_atendidos = models.BooleanField(default=False)
+    municipales_atendidos = models.BooleanField(default=False)
+    monumentos_atendidos = models.BooleanField(default=False)
+    camellones_atendidos = models.BooleanField(default=False)
+    apoyo_areas_gob = models.BooleanField(default=False)
+    otros = models.CharField(max_length=20, blank=True, null=True)
+    otros_cant = models.BooleanField(default=False)
+
+    superficie_atendida_m2 = models.IntegerField()
+    bancas_metalicas = models.IntegerField()
+    resbaladeros = models.IntegerField()
+    sube_baja = models.IntegerField()
+    columpios = models.IntegerField()
+    pasamanos = models.IntegerField()
+    juego_esferas = models.IntegerField()
+    canchas = models.IntegerField()
+    porterias = models.IntegerField()
+    levantado_malla = models.IntegerField()
+    reposicion_malla = models.IntegerField()
+    thinner_utilizado_litros = models.IntegerField()
+    personal_trabajo = models.IntegerField()
+
+    trabajo_realizado = models.TextField()
+    pendientes = models.TextField()
+    observaciones = models.TextField()
+
+    colonia = models.CharField(max_length=100)
+    calle1 = models.CharField(max_length=100)
+    calle2 = models.CharField(max_length=100)
+
+    equipo_utilizado = models.TextField()
+    material_utilizado = models.TextField()
+    vehiculos_utilizados = models.TextField()

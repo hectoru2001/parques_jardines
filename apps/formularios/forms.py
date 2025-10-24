@@ -416,3 +416,67 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
 
             "agua_empleada_litros": "Agua empleada (Litros)",
         }
+
+
+class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
+    numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+
+    class Meta:
+        model = ReporteSoldadura
+        fields = "__all__"
+        widgets = {
+            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "observaciones": forms.Textarea(attrs={"rows": 5}),
+            "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
+            "pendientes": forms.Textarea(attrs={"rows": 3}),
+            "equipo_utilizado": forms.Textarea(attrs={"rows": 2}),
+            "material_utilizado": forms.Textarea(attrs={"rows": 2}),
+            "vehiculos_utilizados": forms.Textarea(attrs={"rows": 2}),
+
+            # Checkboxes
+            "trabajo_diario": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "trabajo_ciudadania": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+
+            # Selected
+            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
+            "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+
+            # Radio Select
+            "pintura_juegos": forms.RadioSelect,
+            "cuenta_alumbrado": forms.RadioSelect,
+            "cuenta_jueguitos": forms.RadioSelect,
+            "cuenta_mobiliario": forms.RadioSelect,
+            "cuenta_sistema_riego": forms.RadioSelect,
+            "necesita_reforestacion": forms.RadioSelect,
+
+            # Dropdown
+            "frecuencia_recoleccion_basura": forms.Select,
+        }
+        labels = {
+            "dia": "Día",
+            "trabajo_ciudadania": "Trabajo de la ciudadanía",
+            "apoyo_areas_gob": "Apoyo a áreas verdes de gobierno",
+
+            "superficie_atendida_m2": "Superficie atendida (m²)",
+            "bancas_metalicas": "Bancas metálicas (Num)",
+            "resvaladeros": "Resbaladero (Num)",
+            "sube_baja": "Sube y baja (Num)",
+            "columpios": "Columpios (Num)",
+            "pasamanos": "Pasamanos (Num)",
+            "juego_esferas": "Juego de esferas (Num)",
+            "canchas": "Canchas (Num)",
+            "porterias": "Porterías (Num)",
+            "levantado_malla": "Levantamiento de malla ciclónica (Num)",
+            "reposicion_malla": "Reposición de malla ciclónica (Num)",
+            "thinner_utilizado_litros": "Thinner utilizado (Litros)",
+            "personal_trabajo": "Personal que trabajo (Num)",
+
+            "colonia": "Colonia o Camellón",
+            "calle1": "Calle 1",
+            "calle2": "Calle 2",
+
+            "vehiculos_utilizados": "Vehículos utilizados",
+        }

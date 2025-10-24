@@ -26,6 +26,9 @@ def tiene_acceso_reporte(user, report_name):
                 return True
     return False
 
+@register.filter
+def capturista(user):
+    return not user.groups.filter(name="Capturista").exists()
 
 @register.filter
 def puede_listar(user):

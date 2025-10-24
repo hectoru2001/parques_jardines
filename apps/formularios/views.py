@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .forms import *
 from .models import *
 from django.db.models import Max
@@ -11,6 +12,9 @@ from django.http import JsonResponse
 import json
 import fitz  # PyMuPDF
 from io import BytesIO
+from .decoradores import requiere_grupo, es_capturista
+
+
 
 @login_required
 def plantilla(request):
@@ -32,6 +36,7 @@ def menu_botones(request):
 
 # ===================== Generar nuevo reporte =====================
 @login_required
+@requiere_grupo("Reporte Cuadrilla")
 def formato_cuadrilla(request):
     last = ReporteCuadrilla.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -42,7 +47,7 @@ def formato_cuadrilla(request):
             form.save()
             return redirect("lista_cuadrillas")
         else:
-            print(form.erros)
+            print(form.errors)
     else:
         form = ReporteCuadrillaForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -50,6 +55,7 @@ def formato_cuadrilla(request):
     return render(request, "formularios/cuadrilla.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Reporte Chamizal")
 def formato_chamizal(request):
     last = ReporteChamizal.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -68,6 +74,7 @@ def formato_chamizal(request):
     return render(request, "formularios/chamizal.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Reporte Cultura")
 def formato_cultura(request):
     last = ReporteCultura.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -86,6 +93,7 @@ def formato_cultura(request):
     return render(request, "formularios/cultura.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Reporte Fuentes")
 def formato_fuentes(request):
     last = ReporteFuentes.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -96,7 +104,7 @@ def formato_fuentes(request):
             form.save()
             return redirect("lista_fuentes")
         else:
-            print(form.erros)
+            print(form.errors)
     else:
         form = ReporteFuentesForm()
         form.fields['numero_reporte'].initial = siguiente_id
@@ -104,6 +112,7 @@ def formato_fuentes(request):
     return render(request, "formularios/fuentes.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Reporte Fugas")
 def formato_fugas(request):
     last = ReporteFugas.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -122,6 +131,7 @@ def formato_fugas(request):
     return render(request, "formularios/fugas.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Reporte Pintura")
 def formato_pinturas(request):
     last = ReportePintura.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -140,6 +150,7 @@ def formato_pinturas(request):
     return render(request, "formularios/pintura.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Riego Chamizal")
 def formato_riego_chamizal(request):
     last = ReporteRiegoChamizal.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -158,6 +169,7 @@ def formato_riego_chamizal(request):
     return render(request, "formularios/riego_chamizal.html", {"form": form, "siguiente_id": siguiente_id})
 
 @login_required
+@requiere_grupo("Riego Chamizal")
 def formato_riego_pipas(request):
     last = ReporteRiegoChamizal.objects.aggregate(Max('id'))['id__max']
     siguiente_id = 1 if not last else last + 1
@@ -175,11 +187,27 @@ def formato_riego_pipas(request):
 
     return render(request, "formularios/riego_pipa.html", {"form": form, "siguiente_id": siguiente_id})
 
+@login_required
+@requiere_grupo("Soldadura")
+def formato_soldadura(request):
+    if request.method == 'POST':
+        form = ReporteSoldaduraForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.succes("Reporte generado correctamente")
+            return redirect("lista_soldadura")
+        else:
+            print(form.errors)
+        
+    else:
+        form = ReporteSoldaduraForm()
 
+    return render(request, "formularios/soldadura.html", {"form": form})
 
 
 # ===================== Cargar listado de reportes =====================
 @login_required
+@requiere_grupo("Reporte Cuadrilla")
 def lista_cuadrilla(request):
     id = request.GET.get("id")
     if id:
@@ -194,6 +222,7 @@ def lista_cuadrilla(request):
 
 
 @login_required
+@requiere_grupo("Reporte Chamizal")
 def lista_chamizal(request):
     id = request.GET.get("id")
     if id:
@@ -207,6 +236,7 @@ def lista_chamizal(request):
     })
 
 @login_required
+@requiere_grupo("Reporte Cultura")
 def lista_cultura(request):
     id = request.GET.get("id")
     if id:
@@ -220,6 +250,7 @@ def lista_cultura(request):
     })
 
 @login_required
+@requiere_grupo("Reporte Fuentes")
 def lista_fuentes(request):
     id = request.GET.get("id")
     if id:
@@ -233,6 +264,7 @@ def lista_fuentes(request):
     })
 
 @login_required
+@requiere_grupo("Reporte Fugas")
 def lista_fugas(request):
     id = request.GET.get("id")
     if id:
@@ -246,6 +278,7 @@ def lista_fugas(request):
     })
 
 @login_required
+@requiere_grupo("Reporte Pintura")
 def lista_pintura(request):
     id = request.GET.get("id")
     if id:
@@ -259,6 +292,7 @@ def lista_pintura(request):
     })
 
 @login_required
+@requiere_grupo("Riego Chamizal")
 def lista_riego_chamizal(request):
     id = request.GET.get("id")
     if id:
@@ -272,6 +306,7 @@ def lista_riego_chamizal(request):
     })
 
 @login_required
+@requiere_grupo("Riego Pipas")
 def lista_riego_pipas(request):
     id = request.GET.get("id")
     if id:
@@ -284,9 +319,24 @@ def lista_riego_pipas(request):
         "id": id
     })
 
+@login_required
+@requiere_grupo("Soldadura")
+def lista_soldadura(request):
+    id = request.GET.get("id")
+    if id:
+        reportes = ReporteSoldadura.objects.filter(id=id).order_by('-fecha')
+    else:
+        reportes = ReporteSoldadura.objects.all().order_by('-fecha')
+
+    return render(request, "gestion/lista_soldadura.html", {
+        "reportes": reportes,
+        "id": id
+    })
 
 # ===================== Edición de reportes =====================
 @login_required
+@requiere_grupo("Reporte Cuadrilla")
+@es_capturista
 def formato_cuadrilla_editar(request, pk):
     reporte = get_object_or_404(ReporteCuadrilla, id=pk)
 
@@ -301,6 +351,8 @@ def formato_cuadrilla_editar(request, pk):
     return render(request, "formularios/cuadrilla.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Reporte Chamizal")
+@es_capturista
 def formato_chamizal_editar(request, pk):
     reporte = get_object_or_404(ReporteChamizal, id=pk)
 
@@ -315,6 +367,8 @@ def formato_chamizal_editar(request, pk):
     return render(request, "formularios/chamizal.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Reporte Cultura")
+@es_capturista
 def formato_cultura_editar(request, pk):
     reporte = get_object_or_404(ReporteCultura, id=pk)
 
@@ -329,6 +383,8 @@ def formato_cultura_editar(request, pk):
     return render(request, "formularios/cultura.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Reporte Fuentes")
+@es_capturista
 def formato_fuentes_editar(request, pk):
     reporte = get_object_or_404(ReporteFuentes, id=pk)
 
@@ -343,6 +399,8 @@ def formato_fuentes_editar(request, pk):
     return render(request, "formularios/fuentes.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Reporte Fugas")
+@es_capturista
 def formato_fugas_editar(request, pk):
     reporte = get_object_or_404(ReporteFugas, id=pk)
 
@@ -357,6 +415,8 @@ def formato_fugas_editar(request, pk):
     return render(request, "formularios/fugas.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Reporte Pintura")
+@es_capturista
 def formato_pinturas_editar(request, pk):
     reporte = get_object_or_404(ReportePintura, id=pk)
 
@@ -371,6 +431,8 @@ def formato_pinturas_editar(request, pk):
     return render(request, "formularios/pintura.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Riego Chamizal")
+@es_capturista
 def formato_riego_chamizal_editar(request, pk):
     reporte = get_object_or_404(ReporteRiegoChamizal, id=pk)
 
@@ -385,6 +447,8 @@ def formato_riego_chamizal_editar(request, pk):
     return render(request, "formularios/riego_chamizal.html", {"form": form, "numero_reporte":pk})
 
 @login_required
+@requiere_grupo("Riego Pipas")
+@es_capturista
 def formato_riego_pipas_editar(request, pk):
     reporte = get_object_or_404(ReporteRiegoPipas, id=pk)
 
@@ -398,6 +462,25 @@ def formato_riego_pipas_editar(request, pk):
 
     return render(request, "formularios/riego_pipa.html", {"form": form, "numero_reporte":pk})
 
+
+@login_required
+@requiere_grupo("Soldadura")
+@es_capturista
+def formato_soldadura_editar(request, pk):
+    reporte = get_object_or_404(ReporteSoldadura, id=pk)
+
+    if request.method == 'POST':
+        form = ReporteSoldaduraForm(request.POST, instance=reporte)
+        if form.is_valid():
+            form.save()
+            return redirect("lista_soldadura")
+        else:
+            print(form.errors)
+    else:
+        form = ReporteSoldaduraForm(instance=reporte)
+
+    return render(request, "formularios/soldadura.html", {"form": form, "numero_reporte":pk})
+
 # Convertir booleanos
 def draw_checkbox(page, x, y, checked=False):
     if checked:
@@ -406,7 +489,7 @@ def draw_checkbox(page, x, y, checked=False):
 
 
 # ===================== Generar PDF =====================
-
+@es_capturista
 def generar_pdf_cuadrilla(request, pk):
     reporte = ReporteCuadrilla.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/cuadrilla.pdf")
@@ -482,6 +565,7 @@ def generar_pdf_cuadrilla(request, pk):
     response["Content-Disposition"] = f'inline; filename="REPORTE_CUADRILLA_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_chamizal(request, pk):
     reporte = ReporteChamizal.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/chamizal.pdf")
@@ -505,7 +589,7 @@ def generar_pdf_chamizal(request, pk):
 
     #Cuarta fila
     page.insert_text((158, 189), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     #Quinta fila - izquierda
     draw_checkbox(page, 315, 235, reporte.parque_chamizal)
@@ -554,6 +638,7 @@ def generar_pdf_chamizal(request, pk):
     response["Content-Disposition"] = f'inline; filename="REPORTE_CHAMIZAL_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_cultura(request, pk):
     reporte = ReporteCultura.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/cultura.pdf")
@@ -571,7 +656,7 @@ def generar_pdf_cultura(request, pk):
     page.insert_text((435, 185), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((433, 225), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((433, 225), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     # Lugar
     page.insert_text((125, 247), reporte.lugar, fontsize=8, color=(0,0,1))
@@ -630,7 +715,7 @@ def generar_pdf_cultura(request, pk):
     response["Content-Disposition"] = f'inline; filename="REPORTE_CULTURA_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
-
+@es_capturista
 def generar_pdf_fuentes(request, pk):
     reporte = ReporteFuentes.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/fuentes_individual.pdf")
@@ -648,7 +733,7 @@ def generar_pdf_fuentes(request, pk):
     page.insert_text((405, 98), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((428, 137), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((428, 137), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     # Superficie Atendida
     page.insert_text((215, 150), str(reporte.superficie_atendida_m2), fontsize=8, color=(0,0,1))
@@ -693,6 +778,7 @@ def generar_pdf_fuentes(request, pk):
     response["Content-Disposition"] = f'inline; filename="REPORTE_FUENTES_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_fuentes_multiple(request, ids):
     ids = ids.split(",")
     reportes = ReporteFuentes.objects.filter(id__in=ids)[:4]
@@ -753,7 +839,7 @@ def generar_pdf_fuentes_multiple(request, ids):
     for i, reporte in enumerate(reportes):
         pos = bloques[i]
 
-        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
         page.insert_text(pos["superficie"], str(reporte.superficie_atendida_m2 or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["limpieza"], str(reporte.limpieza_papeleo_m2 or ""), fontsize=8, color=(0,0,1))
@@ -778,7 +864,7 @@ def generar_pdf_fuentes_multiple(request, ids):
     response["Content-Disposition"] = 'inline; filename="REPORTE_FUENTES_MULTIPLE.pdf"'
     return response
 
-
+@es_capturista
 def generar_pdf_fugas(request, pk):
     reporte = ReporteFugas.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/fugas.pdf")
@@ -798,7 +884,7 @@ def generar_pdf_fugas(request, pk):
 
     page.insert_text((115, 180), reporte.coordinador, fontsize=8, color=(0,0,1))
     page.insert_text((165, 195), reporte.encargado_cuadrilla, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str(reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     draw_checkbox(page, 300, 245, reporte.parques_comunitarios)
     draw_checkbox(page, 300, 260, reporte.parques_municipales)
@@ -844,6 +930,7 @@ def generar_pdf_fugas(request, pk):
     response["Content-Disposition"] = 'inline; filename="REPORTE_FUGAS_CUADRICULA_DETALLE.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_pinturas(request, pk):
     reporte = ReportePintura.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/pinturas.pdf")
@@ -862,7 +949,7 @@ def generar_pdf_pinturas(request, pk):
 
     page.insert_text((115, 175), reporte.coordinador, fontsize=8, color=(0,0,1))
     page.insert_text((165, 190), reporte.encargado, fontsize=8, color=(0,0,1))
-    page.insert_text((440, 197), "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str(reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     draw_checkbox(page, 300, 240, reporte.comunitarios_atendidos)
     draw_checkbox(page, 300, 255, reporte.municipales_atendidos)
@@ -918,7 +1005,7 @@ def generar_pdf_pinturas(request, pk):
     response["Content-Disposition"] = 'inline; filename="REPORTE_PINTURAS_CUADRICULA_DETALLE.pdf"'
     return response
 
-
+@es_capturista
 def generar_pdf_riego_chamizal(request, pk):
     reporte = ReporteRiegoChamizal.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/riego_chamizal_individual.pdf")
@@ -939,7 +1026,7 @@ def generar_pdf_riego_chamizal(request, pk):
     page.insert_text((495, 96), reporte.fecha.strftime('%Y'), fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((428, 148), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((428, 148), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     # Superficie Atendida
     page.insert_text((215, 162), str(reporte.superficie_atendida_m2), fontsize=8, color=(0,0,1))
@@ -975,6 +1062,7 @@ def generar_pdf_riego_chamizal(request, pk):
     response["Content-Disposition"] = 'inline; filename="REPORTE_RIEGO_CHAMIZAL.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_fuentes_multiple_riego_chamizal(request, ids):
     ids = ids.split(",")
     reportes = ReporteRiegoChamizal.objects.filter(id__in=ids)[:4]
@@ -1012,7 +1100,7 @@ def generar_pdf_fuentes_multiple_riego_chamizal(request, ids):
     for i, reporte in enumerate(reportes):
         pos = bloques[i]
 
-        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
         page.insert_text(pos["superficie"], str(reporte.superficie_atendida_m2 or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["fugas"], str(reporte.reparacion_fugas or ""), fontsize=8, color=(0,0,1))
         page.insert_text(pos["aspersores"], str(reporte.limpieza_aspersores or ""), fontsize=8, color=(0,0,1))
@@ -1033,7 +1121,7 @@ def generar_pdf_fuentes_multiple_riego_chamizal(request, ids):
     response["Content-Disposition"] = 'inline; filename="REPORTE_RIEGO_CHAMIZAL_MULTIPLE.pdf"'
     return response
 
-
+@es_capturista
 def generar_pdf_riego_pipa(request, pk):
     reporte = ReporteRiegoPipas.objects.get(id=pk)
     doc = fitz.open("apps/formularios/plantillas/riego_pipa_individual.pdf")
@@ -1048,7 +1136,7 @@ def generar_pdf_riego_pipa(request, pk):
     page.insert_text((415, 140), reporte.dia, fontsize=8, color=(0,0,1))
 
     # Número de Reporte
-    page.insert_text((265, 140), "# " + str( reporte.folio_pac), fontsize=15, color=(0,0,1))
+    page.insert_text((265, 140), "# " + str( reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
     # Nombre del Chofer
     page.insert_text((200, 155), reporte.nombre_chofer, fontsize=8, color=(0,0,1))
@@ -1097,6 +1185,7 @@ def generar_pdf_riego_pipa(request, pk):
     response["Content-Disposition"] = 'inline; filename="REPORTE_RIEGO_PIPA.pdf"'
     return response
 
+@es_capturista
 def generar_pdf_riego_pipa_multiple(request, ids):
     ids = ids.split(",")
     reportes = ReporteRiegoPipas.objects.filter(id__in=ids)[:4]
@@ -1139,7 +1228,7 @@ def generar_pdf_riego_pipa_multiple(request, ids):
 
         # Día e ID
         page.insert_text(pos["dia"], str(reporte.dia or ""), fontsize=8, color=(0,0,1))
-        page.insert_text(pos["id"], "# " + str(reporte.folio_pac), fontsize=15, color=(0,0,1))
+        page.insert_text(pos["id"], "# " + str(reporte.folio_pac or ""), fontsize=15, color=(0,0,1))
 
         # Datos del chofer y vehículo
         page.insert_text(pos["chofer"], reporte.nombre_chofer or "", fontsize=8, color=(0,0,1))
@@ -1174,7 +1263,80 @@ def generar_pdf_riego_pipa_multiple(request, ids):
     response["Content-Disposition"] = 'inline; filename="REPORTE_RIEGO_PIPA_MULTIPLE.pdf"'
     return response
 
+@es_capturista
+def generar_pdf_soldadura(request, pk):
+    reporte = ReporteSoldadura.objects.get(id=pk)
+    doc = fitz.open("apps/formularios/plantillas/soldadura.pdf")
+    page = doc[0]
 
+    page.insert_text((128, 135), reporte.distrito, fontsize=8, color=(0,0,1))
+    page.insert_text((230, 135), reporte.dia, fontsize=8, color=(0,0,1))
+
+    page.insert_text((435, 135), reporte.fecha.strftime('%d'), fontsize=8, color=(0,0,1))
+    page.insert_text((478, 135), reporte.fecha.strftime('%m'), fontsize=8, color=(0,0,1))
+    page.insert_text((518, 135), reporte.fecha.strftime('%Y'), fontsize=8, color=(0,0,1))
+
+    draw_checkbox(page, 150, 155, reporte.trabajo_diario)
+    draw_checkbox(page, 320, 155, reporte.trabajo_ciudadania)
+    draw_checkbox(page, 508, 155, reporte.operativo_especial)
+
+    page.insert_text((115, 175), reporte.coordinador, fontsize=8, color=(0,0,1))
+    page.insert_text((165, 190), reporte.encargado, fontsize=8, color=(0,0,1))
+    page.insert_text((440, 197), "# " + str(reporte.folio_pac or " "), fontsize=15, color=(0,0,1))
+
+    draw_checkbox(page, 300, 240, reporte.comunitarios_atendidos)
+    draw_checkbox(page, 300, 255, reporte.municipales_atendidos)
+    draw_checkbox(page, 300, 270, reporte.monumentos_atendidos)
+    draw_checkbox(page, 300, 285, reporte.camellones_atendidos)
+    draw_checkbox(page, 300, 300, reporte.apoyo_areas_gob)
+    draw_checkbox(page, 300, 315, reporte.otros_cant)
+
+    page.insert_text((85, 310), reporte.otros, fontsize=8, color=(0,0,1))
+
+    page.insert_text((285, 360), str(reporte.superficie_atendida_m2), fontsize=8, color=(0,0,1))
+    #page.insert_text((285, 375), str(reporte.bancas_cemento), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 375), str(reporte.bancas_metalicas), fontsize=8, color=(0,0,1))
+    #page.insert_text((285, 405), str(reporte.multijuegos), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 390), str(reporte.resbaladeros), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 407), str(reporte.sube_baja), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 422), str(reporte.columpios), fontsize=8, color=(0,0,1)) 
+    page.insert_text((285, 437), str(reporte.pasamanos), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 452), str(reporte.juego_esferas), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 467), str(reporte.canchas), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 482), str(reporte.porterias), fontsize=8, color=(0,0,1))
+    #page.insert_text((285, 527), str(reporte.encalado_arboles), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 497), str(reporte.levantado_malla), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 512), str(reporte.reposicion_malla), fontsize=8, color=(0,0,1))
+    #page.insert_text((285, 572), str(reporte.pintura_utilizada_litros), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 527), str(reporte.thinner_utilizado_litros), fontsize=8, color=(0,0,1))
+    page.insert_text((285, 542), str(reporte.personal_trabajo), fontsize=8, color=(0,0,1))
+
+
+    page.insert_text((57, 638), reporte.colonia, fontsize=8, color=(0,0,1))
+    page.insert_text((187, 638), reporte.calle1, fontsize=8, color=(0,0,1))
+    page.insert_text((357, 638), reporte.calle2, fontsize=8, color=(0,0,1))
+
+    page.insert_text((185, 670), reporte.equipo_utilizado, fontsize=8, color=(0,0,1))
+    page.insert_text((185, 685), reporte.material_utilizado, fontsize=8, color=(0,0,1))
+    page.insert_text((185, 700), reporte.vehiculos_utilizados, fontsize=8, color=(0,0,1))
+    
+    rect_t = fitz.Rect(358, 228, 560, 380)
+    page.insert_textbox(rect_t, reporte.trabajo_realizado, fontsize=9, color=(0,0,0), lineheight=1.6)
+
+    rect_p = fitz.Rect(358, 410, 560, 520)
+    page.insert_textbox(rect_p, reporte.pendientes, fontsize=9, color=(0,0,0))
+
+    rect_o = fitz.Rect(358, 485, 560, 620)
+    page.insert_textbox(rect_o, reporte.observaciones, fontsize=9, color=(0,0,0), lineheight=1.6)
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    pdf_bytes = buffer.getvalue()
+    doc.close()
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = 'inline; filename="REPORTE_PINTURAS_CUADRICULA_DETALLE.pdf"'
+    return response
 
 
 # ===================== Funcionamiento offline =======================

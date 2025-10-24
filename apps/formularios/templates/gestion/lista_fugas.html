@@ -64,6 +64,7 @@
                                 </div>
                             </td>
                             <td class="text-center pe-4">
+                                {% if user.capturista %}
                                 <div class="btn-group" role="group">
                                     <a href="{% url 'fugas_editar' reporte.pk %}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Editar">
                                         <i class="bi bi-pencil"></i>
@@ -75,7 +76,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
-                                
+                                {% endif %}
                                 <div class="modal fade" id="deleteModal{{ reporte.pk }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
