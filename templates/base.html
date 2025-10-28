@@ -488,7 +488,7 @@
     </nav>
 
     <!-- Contenido principal -->
-    <main class="container py-4 rsc-main-content bg-gray-100">
+    <main id="mainContent" class="container py-4 rsc-main-content bg-gray-100">
         {% block content %}
         {% endblock %}
     </main>
@@ -529,6 +529,7 @@
                 this.querySelector('.dropdown-toggle').classList.remove('active');
             });
         });
+
     </script>
 </body>
 

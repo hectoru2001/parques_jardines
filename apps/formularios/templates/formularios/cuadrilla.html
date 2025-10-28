@@ -5,7 +5,7 @@
 <div class="container mt-3">
     <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
 </div>
-<div class="container mt-4">
+<div class=" mt-3">
 
     <!-- Encabezado -->
     <h2 class="text-center mb-4 p-2 rounded shadow-sm" 
@@ -207,34 +207,142 @@
         </fieldset>
 
         <!-- Evaluaciones -->
-        <fieldset class="border rounded p-3 mb-4">
+        <fieldset class="mb-4">
             <legend class="fw-bold text-white px-3 py-1 rounded text-center" 
-                    style="background-color: #831f46; font-size: 1rem;">
+                    style="background-color: #831f46;">
                 Evaluaciones de Condición
             </legend>
-            <table class="table table-bordered text-center align-middle">
-                <thead style="background-color: #831f46; color: white;">
-                    <tr>
-                        <th>Propiedad</th>
-                        <th>---</th>
-                        <th>Sí</th>
-                        <th>No</th>
-                        <th>Malo</th>
-                        <th>Regular</th>
-                        <th>Bueno</th>
-                        <th>Excelente</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Reforestación</td>{% for radio in form.necesita_reforestacion %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                    <tr><td>Pintura Juegos</td>{% for radio in form.pintura_juegos %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                    <tr><td>Jueguitos</td>{% for radio in form.cuenta_jueguitos %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                    <tr><td>Mobiliario</td>{% for radio in form.cuenta_mobiliario %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                    <tr><td>Sistema de Riego</td>{% for radio in form.cuenta_sistema_riego %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                    <tr><td>Alumbrado</td>{% for radio in form.cuenta_alumbrado %}<td>{{ radio.tag }}</td>{% endfor %}</tr>
-                </tbody>
-            </table>
+
+            <!-- Contenedor optimizado para responsivo -->
+            <div class="table-container-optimized">
+                <table class="table table-bordered text-center align-middle mb-0" style="font-size: 0.75rem;">
+                    <thead style="background-color: #831f46; color: white;">
+                        <tr>
+                            <th style="min-width: 80px;">Propiedad</th>
+                            <th style="min-width: 30px;">---</th>
+                            <th style="min-width: 35px;">Sí</th>
+                            <th style="min-width: 35px;">No</th>
+                            <th style="min-width: 40px;">Malo</th>
+                            <th style="min-width: 45px;">Regular</th>
+                            <th style="min-width: 45px;">Bueno</th>
+                            <th style="min-width: 55px;">Excelente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-medium">Reforestación</td>
+                            {% for radio in form.necesita_reforestacion %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Pintura Juegos</td>
+                            {% for radio in form.pintura_juegos %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Jueguitos</td>
+                            {% for radio in form.cuenta_jueguitos %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Mobiliario</td>
+                            {% for radio in form.cuenta_mobiliario %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Sistema de Riego</td>
+                            {% for radio in form.cuenta_sistema_riego %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Alumbrado</td>
+                            {% for radio in form.cuenta_alumbrado %}
+                                <td>{{ radio.tag }}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </fieldset>
+
+        <style>
+            /* Estilos optimizados para tabla responsiva */
+            .table-container-optimized {
+                width: 100%;
+                overflow: hidden;
+            }
+            
+            .table-container-optimized table {
+                min-width: 100%;
+                table-layout: fixed;
+            }
+            
+            .table-container-optimized th,
+            .table-container-optimized td {
+                padding: 0.3rem;
+                word-wrap: break-word;
+            }
+            
+            .table-container-optimized input[type="radio"] {
+                transform: scale(0.8);
+                margin: 0;
+            }
+            
+            /* Asegurar que la tabla se ajuste en móviles */
+            @media (max-width: 768px) {
+                .table-container-optimized table {
+                    font-size: 0.7rem !important;
+                }
+                
+                .table-container-optimized th,
+                .table-container-optimized td {
+                    padding: 0.2rem;
+                    min-width: auto !important;
+                }
+                
+                .table-container-optimized th:nth-child(1),
+                .table-container-optimized td:nth-child(1) {
+                    width: 20%;
+                }
+                
+                .table-container-optimized th:not(:first-child),
+                .table-container-optimized td:not(:first-child) {
+                    width: 11.4%;
+                }
+            }
+            
+            @media (max-width: 576px) {
+                .table-container-optimized table {
+                    font-size: 0.65rem !important;
+                }
+                
+                .table-container-optimized th,
+                .table-container-optimized td {
+                    padding: 0.15rem;
+                }
+                
+                .table-container-optimized input[type="radio"] {
+                    transform: scale(0.7);
+                }
+            }
+            
+            @media (max-width: 400px) {
+                .table-container-optimized table {
+                    font-size: 0.6rem !important;
+                }
+                
+                .table-container-optimized th,
+                .table-container-optimized td {
+                    padding: 0.1rem;
+                }
+            }
+        </style>
+
 
         <!-- Botón -->
         <div class="text-center">
@@ -249,5 +357,22 @@
 </div>
 <script src="{% static 'js/checkboxes.js' %}"></script>
 <script src="{% static 'js/cuadrilla.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const main = document.getElementById("mainContent");
+
+        function ajustarClases() {
+            if (window.innerWidth < 768) {
+            main.classList.remove("container", "rsc-main-content" , "py-4", "bg-gray-100");
+            } else {
+            main.classList.add("container", "rsc-main-content" , "py-4", "bg-gray-100");
+            }
+        }
+
+        // Ejecuta al cargar y al redimensionar
+        ajustarClases();
+            window.addEventListener("resize", ajustarClases);
+        });
+</script>
 {% endblock %}
 

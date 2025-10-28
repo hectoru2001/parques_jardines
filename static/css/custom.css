@@ -324,3 +324,25 @@
     background-color: #4CAF50 !important; /* cambia según tipo */
     color: white !important;
 }
+
+/* Estilo base para checkbox y radio */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 18px;
+    height: 18px;
+}
+
+/* Aumentar tamaño en pantallas pequeñas */
+@media (max-width: 768px) {
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Opcional: más espacio alrededor para touch-friendly */
+input[type="checkbox"],
+input[type="radio"] {
+    margin: 0.25rem;
+}
