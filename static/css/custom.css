@@ -325,24 +325,32 @@
     color: white !important;
 }
 
-/* Estilo base para checkbox y radio */
+/* 🎯 Estilo base (escritorio) */
 input[type="checkbox"],
 input[type="radio"] {
     width: 18px;
     height: 18px;
+    margin: 0.25rem;
+    cursor: pointer;
 }
 
-/* Aumentar tamaño en pantallas pequeñas */
-@media (max-width: 768px) {
+/* 📱 Pantallas pequeñas (teléfonos) */
+@media (max-width: 576px) {
     input[type="checkbox"],
     input[type="radio"] {
         width: 28px;
         height: 28px;
+        margin: 0.4rem;
     }
 }
 
-/* Opcional: más espacio alrededor para touch-friendly */
-input[type="checkbox"],
-input[type="radio"] {
-    margin: 0.25rem;
+/* 💻 Tabletas (pantallas medianas, ej. iPad) */
+@media (min-width: 577px) and (max-width: 992px) {
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 26px;
+        height: 26px;
+        margin: 0.35rem;
+    }
 }
+
