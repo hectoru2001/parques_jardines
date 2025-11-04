@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from PIL import Image
+from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.urls import reverse
 import json
@@ -121,8 +123,7 @@ def generar_formato(request, tipo_reporte):
         raise Http404("Tipo de reporte no válido")
     
     config = CONFIG_REPORTES[tipo_reporte]
-    
-    # Calcular siguiente ID (excepto para soldadura)
+
     siguiente_id = None
     if config["modelo"]:
         last = config["modelo"].objects.aggregate(Max('id'))['id__max']
@@ -131,10 +132,29 @@ def generar_formato(request, tipo_reporte):
     if request.method == "POST":
         form = config["form_class"](request.POST, request.FILES)
         if form.is_valid():
-            reporte = form.save(commit=False)  
-            reporte.creado_por = request.user   
-            reporte.save()                      
+            reporte = form.save(commit=False)
+            reporte.creado_por = request.user
+
+            for field_name, field in form.fields.items():
+                if field_name in request.FILES:
+                    uploaded_file = request.FILES[field_name]
+
+                    try:
+                        img = Image.open(uploaded_file)
+                        if img.mode in ("RGBA", "P"):
+                            img = img.convert("RGB")
+
+                        img_io = BytesIO()
+                        img.save(img_io, format="JPEG", optimize=True, quality=70)
+                        compressed = ContentFile(img_io.getvalue(), name=uploaded_file.name)
+
+                        setattr(reporte, field_name, compressed)
+                    except Exception as e:
+                        print(f"⚠️ No se pudo comprimir {field_name}: {e}")
+
+            reporte.save()
             messages.success(request, "Reporte generado correctamente")
+
             lista_config = CONFIG_LISTAS.get(tipo_reporte)
             if lista_config:
                 template_lista = lista_config['template']
@@ -158,7 +178,6 @@ def generar_formato(request, tipo_reporte):
     }
     
     return render(request, config["template"], context)
-
 
 # ===================== Cargar listado de reportes =====================
 @login_required
@@ -196,7 +215,6 @@ def lista_reportes(request, tipo_reporte):
     }
 
     return render(request, config["template"], context)
-
 
 def modal_reporte(request, tipo_reporte, pk):
     config = CONFIG_REPORTES[tipo_reporte]
@@ -275,10 +293,33 @@ def editar_reporte(request, tipo_reporte, pk):
         form = config["form_class"](request.POST, request.FILES, instance=reporte)
         if form.is_valid():
             reporte = form.save(commit=False)
+
             if hasattr(reporte, "creado_por") and not reporte.creado_por:
                 reporte.creado_por = request.user
+
+            for field_name, field in form.fields.items():
+                if field_name in request.FILES:
+                    uploaded_file = request.FILES[field_name]
+                    try:
+                        img = Image.open(uploaded_file)
+                        if img.mode in ("RGBA", "P"):
+                            img = img.convert("RGB")
+
+                        if uploaded_file.size > 800 * 1024:
+                            img_io = BytesIO()
+                            img.save(img_io, format="JPEG", optimize=True, quality=70)
+                            compressed = ContentFile(img_io.getvalue(), name=uploaded_file.name)
+                            setattr(reporte, field_name, compressed)
+                            print(f"Imagen {field_name} comprimida de {uploaded_file.size/1024:.1f} KB "
+                                  f"a {len(img_io.getvalue())/1024:.1f} KB")
+                        else:
+                            print(f"Imagen {field_name} omitida (solo {uploaded_file.size/1024:.1f} KB)")
+                    except Exception as e:
+                        print(f"⚠️ No se pudo comprimir {field_name}: {e}")
+
             reporte.save()
             messages.success(request, "Reporte actualizado correctamente")
+
             lista_config = CONFIG_LISTAS.get(tipo_reporte)
             if lista_config:
                 template_lista = lista_config['template']
@@ -302,9 +343,7 @@ def editar_reporte(request, tipo_reporte, pk):
         "tipo_reporte": tipo_reporte,
     }
 
-    # Render directo, el decorador de grupo se aplica a la vista entera
     return render(request, config["template"], context)
-
 
 # Convertir booleanos
 def draw_checkbox(page, x, y, checked=False):
