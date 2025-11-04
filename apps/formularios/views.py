@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,15 +6,95 @@ from .forms import *
 from .models import *
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.urls import reverse
 import json
 import fitz  # PyMuPDF
 from io import BytesIO
 from .decoradores import requiere_grupo, es_capturista
+import os
+from django.conf import settings
 
+CONFIG_REPORTES = {
+        "cuadrilla": {
+            "grupo": "Reporte Cuadrilla",
+            "modelo": ReporteCuadrilla,
+            "form_class": ReporteCuadrillaForm,
+            "template": "formularios/cuadrilla.html",
+            "redirect": "lista_cuadrillas"
+        },
+        "chamizal": {
+            "grupo": "Reporte Chamizal",
+            "modelo": ReporteChamizal,
+            "form_class": ReporteChamizalForm,
+            "template": "formularios/chamizal.html",
+            "redirect": "lista_chamizal"
+        },
+        "cultura": {
+            "grupo": "Reporte Cultura",
+            "modelo": ReporteCultura,
+            "form_class": ReporteCulturaForm,
+            "template": "formularios/cultura.html",
+            "redirect": "lista_cultura"
+        },
+        "fuentes": {
+            "grupo": "Reporte Fuentes",
+            "modelo": ReporteFuentes,
+            "form_class": ReporteFuentesForm,
+            "template": "formularios/fuentes.html",
+            "redirect": "lista_fuentes"
+        },
+        "fugas": {
+            "grupo": "Reporte Fugas",
+            "modelo": ReporteFugas,
+            "form_class": ReporteFugasForm,
+            "template": "formularios/fugas.html",
+            "redirect": "lista_fugas"
+        },
+        "pinturas": {
+            "grupo": "Reporte Pintura",
+            "modelo": ReportePintura,
+            "form_class": ReportePinturasForm,
+            "template": "formularios/pintura.html",
+            "redirect": "lista_pinturas"
+        },
+        "riego_chamizal": {
+            "grupo": "Riego Chamizal",
+            "modelo": ReporteRiegoChamizal,
+            "form_class": ReporteRiegoChamizalForm,
+            "template": "formularios/riego_chamizal.html",
+            "redirect": "lista_riego_chamizal"
+        },
+        "riego_pipas": {
+            "grupo": "Riego Pipas",
+            "modelo": ReporteRiegoPipas,
+            "form_class": ReporteRiegoPipasForm,
+            "template": "formularios/riego_pipa.html",
+            "redirect": "lista_riego_pipas"
+        },
+        "soldadura": {
+            "grupo": "Soldadura",
+            "modelo": ReporteSoldadura, 
+            "form_class": ReporteSoldaduraForm,
+            "template": "formularios/soldadura.html",
+            "redirect": "lista_soldadura"
+        }
+    }
 
+CONFIG_LISTAS = {
+        "cuadrilla": {"grupo": "Reporte Cuadrilla", "modelo": ReporteCuadrilla, "template": "gestion/lista_cuadrillas.html"},
+        "chamizal": {"grupo": "Reporte Chamizal", "modelo": ReporteChamizal, "template": "gestion/lista_chamizal.html"},
+        "cultura": {"grupo": "Reporte Cultura", "modelo": ReporteCultura, "template": "gestion/lista_cultura.html"},
+        "fuentes": {"grupo": "Reporte Fuentes", "modelo": ReporteFuentes, "template": "gestion/lista_fuentes.html"},
+        "fugas": {"grupo": "Reporte Fugas", "modelo": ReporteFugas, "template": "gestion/lista_fugas.html"},
+        "pinturas": {"grupo": "Reporte Pintura", "modelo": ReportePintura, "template": "gestion/lista_pinturas.html"},
+        "riego_chamizal": {"grupo": "Riego Chamizal", "modelo": ReporteRiegoChamizal, "template": "gestion/lista_riego_chamizal.html"},
+        "riego_pipas": {"grupo": "Riego Pipas", "modelo": ReporteRiegoPipas, "template": "gestion/lista_riego_pipa.html"},
+        "soldadura": {"grupo": "Soldadura", "modelo": ReporteSoldadura, "template": "gestion/lista_soldadura.html"},
+    }
 
 @login_required
 def plantilla(request):
@@ -36,450 +116,195 @@ def menu_botones(request):
 
 # ===================== Generar nuevo reporte =====================
 @login_required
-@requiere_grupo("Reporte Cuadrilla")
-def formato_cuadrilla(request):
-    last = ReporteCuadrilla.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
+def generar_formato(request, tipo_reporte):
+    if tipo_reporte not in CONFIG_REPORTES:
+        raise Http404("Tipo de reporte no válido")
+    
+    config = CONFIG_REPORTES[tipo_reporte]
+    
+    # Calcular siguiente ID (excepto para soldadura)
+    siguiente_id = None
+    if config["modelo"]:
+        last = config["modelo"].objects.aggregate(Max('id'))['id__max']
+        siguiente_id = 1 if not last else last + 1
 
     if request.method == "POST":
-        form = ReporteCuadrillaForm(request.POST)
+        form = config["form_class"](request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect("lista_cuadrillas")
+            reporte = form.save(commit=False)  
+            reporte.creado_por = request.user   
+            reporte.save()                      
+            messages.success(request, "Reporte generado correctamente")
+            lista_config = CONFIG_LISTAS.get(tipo_reporte)
+            if lista_config:
+                template_lista = lista_config['template']
+                reportes = lista_config['modelo'].objects.all()
+                return render(request, template_lista, {
+                    'reportes': reportes,
+                    'grupo': lista_config['grupo'],
+                    'tipo_reporte': tipo_reporte
+                })
         else:
             print(form.errors)
     else:
-        form = ReporteCuadrillaForm()
-        form.fields['numero_reporte'].initial = siguiente_id
+        form = config["form_class"]()
+        if siguiente_id and hasattr(form.fields, 'numero_reporte'):
+            form.fields['numero_reporte'].initial = siguiente_id
 
-    return render(request, "formularios/cuadrilla.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Reporte Chamizal")
-def formato_chamizal(request):
-    last = ReporteChamizal.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteChamizalForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_chamizal")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteChamizalForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/chamizal.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Reporte Cultura")
-def formato_cultura(request):
-    last = ReporteCultura.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteCulturaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_cultura")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteCulturaForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/cultura.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Reporte Fuentes")
-def formato_fuentes(request):
-    last = ReporteFuentes.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteFuentesForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_fuentes")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteFuentesForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/fuentes.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Reporte Fugas")
-def formato_fugas(request):
-    last = ReporteFugas.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteFugasForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_fugas")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteFugasForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/fugas.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Reporte Pintura")
-def formato_pinturas(request):
-    last = ReportePintura.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReportePinturasForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_pinturas")
-        else:
-            print(form.errors)
-    else:
-        form = ReportePinturasForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/pintura.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Riego Chamizal")
-def formato_riego_chamizal(request):
-    last = ReporteRiegoChamizal.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteRiegoChamizalForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_riego_chamizal")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteRiegoChamizalForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/riego_chamizal.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Riego Chamizal")
-def formato_riego_pipas(request):
-    last = ReporteRiegoChamizal.objects.aggregate(Max('id'))['id__max']
-    siguiente_id = 1 if not last else last + 1
-
-    if request.method == "POST":
-        form = ReporteRiegoPipasForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_riego_pipas")
-        else:
-            print(form.errors)
-    else:
-        form = ReporteRiegoPipasForm()
-        form.fields['numero_reporte'].initial = siguiente_id
-
-    return render(request, "formularios/riego_pipa.html", {"form": form, "siguiente_id": siguiente_id})
-
-@login_required
-@requiere_grupo("Soldadura")
-def formato_soldadura(request):
-    if request.method == 'POST':
-        form = ReporteSoldaduraForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.succes("Reporte generado correctamente")
-            return redirect("lista_soldadura")
-        else:
-            print(form.errors)
-        
-    else:
-        form = ReporteSoldaduraForm()
-
-    return render(request, "formularios/soldadura.html", {"form": form})
+    context = {
+        "form": form,
+        "siguiente_id": siguiente_id,
+        "tipo_reporte": tipo_reporte
+    }
+    
+    return render(request, config["template"], context)
 
 
 # ===================== Cargar listado de reportes =====================
 @login_required
-@requiere_grupo("Reporte Cuadrilla")
-def lista_cuadrilla(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteCuadrilla.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteCuadrilla.objects.all().order_by('-fecha')
+def lista_reportes(request, tipo_reporte):
 
-    return render(request, "gestion/lista_cuadrillas.html", {
+    if tipo_reporte not in CONFIG_LISTAS:
+        raise Http404("Tipo de reporte no válido")
+
+    config = CONFIG_LISTAS[tipo_reporte]
+    Modelo = config["modelo"]
+
+    filtro = request.GET.get("filtro", "all").strip()
+    valor = request.GET.get("query", "").strip()
+    fecha_inicio = request.GET.get("fecha_inicio")
+    fecha_fin = request.GET.get("fecha_fin")
+
+    reportes = Modelo.objects.all()
+
+    # Filtrado según el filtro seleccionado
+    if filtro == "id" and valor.isdigit():
+        reportes = reportes.filter(id=int(valor))
+    elif filtro == "folio" and valor:
+        reportes = reportes.filter(folio_pac__icontains=valor)
+    elif filtro == "fecha" and fecha_inicio and fecha_fin:
+        reportes = reportes.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    reportes = reportes.order_by("-id")
+
+    context = {
         "reportes": reportes,
-        "id": id
+        "tipo_reporte": tipo_reporte,
+        "filtro": filtro,
+        "valor": valor,
+        "grupo": config["grupo"],
+    }
+
+    return render(request, config["template"], context)
+
+
+def modal_reporte(request, tipo_reporte, pk):
+    config = CONFIG_REPORTES[tipo_reporte]
+    Modelo = config["modelo"]
+
+    instancia = get_object_or_404(Modelo, pk=pk)
+
+    datos = {}
+    for field in Modelo._meta.get_fields():
+        # Omitir campos inversos o automáticos que no queremos mostrar
+        if field.auto_created or field.many_to_many:
+            continue
+
+        # Obtener valor del campo
+        value = getattr(instancia, field.name, None)
+
+        # Formateo dinámico
+        if value is None:
+            display = '<span class="text-muted fst-italic">—</span>'
+        elif isinstance(value, bool):
+            display = '<span class="badge bg-success">Sí</span>' if value else '<span class="badge bg-danger">No</span>'
+        elif hasattr(value, 'strftime'):  # fechas
+            display = value.strftime('%Y-%m-%d')
+        elif isinstance(value, (list, tuple)):
+            display = ', '.join(str(v) for v in value)
+        else:
+            display = value
+
+        datos[field.name] = mark_safe(display)
+
+    return render(request, 'partials/modal_body.html', {'datos': datos})
+
+def editar_folio_pac(request, tipo, pk):
+    config = CONFIG_REPORTES.get(tipo)
+    if not config:
+        return JsonResponse({'error': 'Tipo de reporte no válido'}, status=400)
+
+    Modelo = config['modelo']
+    reporte = get_object_or_404(Modelo, pk=pk)
+
+    if request.method == 'POST':
+        folio = request.POST.get('folio_pac', '').strip()
+        reporte.folio_pac = folio
+        reporte.save()
+
+        lista_config = CONFIG_LISTAS.get(tipo)
+        if lista_config:
+            template_lista = lista_config['template']
+            reportes = lista_config['modelo'].objects.all()
+            return render(request, template_lista, {
+                'reportes': reportes,
+                'grupo': lista_config['grupo'],
+                'tipo_reporte': tipo
+            })
+
+    return render(request, 'partials/modal_folio_pac.html', {
+        'reporte': reporte,
+        'tipo': tipo,
+        'grupo': config['grupo'],
     })
 
-
-@login_required
-@requiere_grupo("Reporte Chamizal")
-def lista_chamizal(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteChamizal.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteChamizal.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_chamizal.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Reporte Cultura")
-def lista_cultura(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteCultura.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteCultura.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_cultura.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Reporte Fuentes")
-def lista_fuentes(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteFuentes.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteFuentes.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_fuentes.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Reporte Fugas")
-def lista_fugas(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteFugas.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteFugas.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_fugas.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Reporte Pintura")
-def lista_pintura(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReportePintura.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReportePintura.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_pinturas.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Riego Chamizal")
-def lista_riego_chamizal(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteRiegoChamizal.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteRiegoChamizal.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_riego_chamizal.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Riego Pipas")
-def lista_riego_pipas(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteRiegoPipas.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteRiegoPipas.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_riego_pipa.html", {
-        "reportes": reportes,
-        "id": id
-    })
-
-@login_required
-@requiere_grupo("Soldadura")
-def lista_soldadura(request):
-    id = request.GET.get("id")
-    if id:
-        reportes = ReporteSoldadura.objects.filter(id=id).order_by('-fecha')
-    else:
-        reportes = ReporteSoldadura.objects.all().order_by('-fecha')
-
-    return render(request, "gestion/lista_soldadura.html", {
-        "reportes": reportes,
-        "id": id
-    })
 
 # ===================== Edición de reportes =====================
 @login_required
-@requiere_grupo("Reporte Cuadrilla")
 @es_capturista
-def formato_cuadrilla_editar(request, pk):
-    reporte = get_object_or_404(ReporteCuadrilla, id=pk)
+def editar_reporte(request, tipo_reporte, pk):
+    config = CONFIG_REPORTES.get(tipo_reporte)
+    if not config:
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("home")
+
+    Modelo = config["modelo"]
+    reporte = get_object_or_404(Modelo, id=pk)
 
     if request.method == "POST":
-        form = ReporteCuadrillaForm(request.POST, instance=reporte)
+        form = config["form_class"](request.POST, request.FILES, instance=reporte)
         if form.is_valid():
-            form.save()
-            return redirect("lista_cuadrillas")
-    else:
-        form = ReporteCuadrillaForm(instance=reporte)
-
-    return render(request, "formularios/cuadrilla.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Reporte Chamizal")
-@es_capturista
-def formato_chamizal_editar(request, pk):
-    reporte = get_object_or_404(ReporteChamizal, id=pk)
-
-    if request.method == "POST":
-        form = ReporteChamizalForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_chamizal")
-    else:
-        form = ReporteChamizalForm(instance=reporte)
-
-    return render(request, "formularios/chamizal.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Reporte Cultura")
-@es_capturista
-def formato_cultura_editar(request, pk):
-    reporte = get_object_or_404(ReporteCultura, id=pk)
-
-    if request.method == "POST":
-        form = ReporteCulturaForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_cultura")
-    else:
-        form = ReporteCulturaForm(instance=reporte)
-
-    return render(request, "formularios/cultura.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Reporte Fuentes")
-@es_capturista
-def formato_fuentes_editar(request, pk):
-    reporte = get_object_or_404(ReporteFuentes, id=pk)
-
-    if request.method == "POST":
-        form = ReporteFuentesForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_fuentes")
-    else:
-        form = ReporteFuentesForm(instance=reporte)
-
-    return render(request, "formularios/fuentes.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Reporte Fugas")
-@es_capturista
-def formato_fugas_editar(request, pk):
-    reporte = get_object_or_404(ReporteFugas, id=pk)
-
-    if request.method == "POST":
-        form = ReporteFugasForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_fugas")
-    else:
-        form = ReporteFugasForm(instance=reporte)
-
-    return render(request, "formularios/fugas.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Reporte Pintura")
-@es_capturista
-def formato_pinturas_editar(request, pk):
-    reporte = get_object_or_404(ReportePintura, id=pk)
-
-    if request.method == "POST":
-        form = ReportePinturasForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_pinturas")
-    else:
-        form = ReportePinturasForm(instance=reporte)
-
-    return render(request, "formularios/pintura.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Riego Chamizal")
-@es_capturista
-def formato_riego_chamizal_editar(request, pk):
-    reporte = get_object_or_404(ReporteRiegoChamizal, id=pk)
-
-    if request.method == "POST":
-        form = ReporteRiegoChamizalForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_riego_chamizal")
-    else:
-        form = ReporteRiegoChamizalForm(instance=reporte)
-
-    return render(request, "formularios/riego_chamizal.html", {"form": form, "numero_reporte":pk})
-
-@login_required
-@requiere_grupo("Riego Pipas")
-@es_capturista
-def formato_riego_pipas_editar(request, pk):
-    reporte = get_object_or_404(ReporteRiegoPipas, id=pk)
-
-    if request.method == "POST":
-        form = ReporteRiegoPipasForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_riego_pipas")
-    else:
-        form = ReporteRiegoPipasForm(instance=reporte)
-
-    return render(request, "formularios/riego_pipa.html", {"form": form, "numero_reporte":pk})
-
-
-@login_required
-@requiere_grupo("Soldadura")
-@es_capturista
-def formato_soldadura_editar(request, pk):
-    reporte = get_object_or_404(ReporteSoldadura, id=pk)
-
-    if request.method == 'POST':
-        form = ReporteSoldaduraForm(request.POST, instance=reporte)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_soldadura")
+            reporte = form.save(commit=False)
+            if hasattr(reporte, "creado_por") and not reporte.creado_por:
+                reporte.creado_por = request.user
+            reporte.save()
+            messages.success(request, "Reporte actualizado correctamente")
+            lista_config = CONFIG_LISTAS.get(tipo_reporte)
+            if lista_config:
+                template_lista = lista_config['template']
+                reportes = lista_config['modelo'].objects.all()
+                return render(request, template_lista, {
+                    'reportes': reportes,
+                    'grupo': lista_config['grupo'],
+                    'tipo_reporte': tipo_reporte
+                })
         else:
             print(form.errors)
     else:
-        form = ReporteSoldaduraForm(instance=reporte)
+        form = config["form_class"](instance=reporte)
+        print(config["template"])
 
-    return render(request, "formularios/soldadura.html", {"form": form, "numero_reporte":pk})
+    context = {
+        "form": form,
+        "reporte": reporte,
+        "numero_reporte": pk,
+        "grupo": config["grupo"],
+        "tipo_reporte": tipo_reporte,
+    }
+
+    # Render directo, el decorador de grupo se aplica a la vista entera
+    return render(request, config["template"], context)
+
 
 # Convertir booleanos
 def draw_checkbox(page, x, y, checked=False):
@@ -489,6 +314,61 @@ def draw_checkbox(page, x, y, checked=False):
 
 
 # ===================== Generar PDF =====================
+def agregar_fotos_pdf(doc, reporte):
+    """
+    Añade una nueva página al PDF con el título 'FOTOGRAFÍAS DEL REPORTE'
+    y las imágenes de 'foto_antes' y 'foto_despues' si existen.
+    """
+
+    nueva_pagina = doc.new_page()
+    ancho_pagina, alto_pagina = nueva_pagina.rect.width, nueva_pagina.rect.height
+    margen_x = 50
+    y_actual = 100
+    max_ancho = ancho_pagina - (2 * margen_x)
+    max_alto = 300
+
+    # === Fondo rojo con texto blanco ===
+    titulo_texto = "FOTOGRAFÍAS DEL REPORTE"
+    ancho_texto = fitz.get_text_length(titulo_texto, fontsize=16)
+
+    nueva_pagina.insert_text(
+        ((ancho_pagina - ancho_texto) / 2, 58),
+        titulo_texto,
+        fontsize=16,
+        color=(0, 0, 0),  # texto blanco
+    )
+
+    # === Función auxiliar interna para dibujar cada foto ===
+    def insertar_foto(imagen_field, etiqueta):
+        nonlocal y_actual
+        if not imagen_field:
+            return
+
+        ruta_imagen = os.path.join(settings.MEDIA_ROOT, str(imagen_field))
+        if not os.path.exists(ruta_imagen):
+            return
+
+        img = fitz.open(ruta_imagen)
+        rect_img = img[0].rect
+        proporción = rect_img.width / rect_img.height
+
+        ancho = min(max_ancho, rect_img.width)
+        alto = ancho / proporción
+        if alto > max_alto:
+            alto = max_alto
+            ancho = alto * proporción
+
+        x = (ancho_pagina - ancho) / 2
+        y = y_actual
+
+        nueva_pagina.insert_text((margen_x, y - 20), etiqueta, fontsize=12, color=(0, 0, 0))
+        nueva_pagina.insert_image(fitz.Rect(x, y, x + ancho, y + alto), filename=ruta_imagen)
+        y_actual += alto + 80
+
+    # === Añadir las dos fotos si existen ===
+    insertar_foto(reporte.foto_antes, "Foto Antes")
+    insertar_foto(reporte.foto_despues, "Foto Después")
+
 @es_capturista
 def generar_pdf_cuadrilla(request, pk):
     reporte = ReporteCuadrilla.objects.get(id=pk)
@@ -553,15 +433,15 @@ def generar_pdf_cuadrilla(request, pk):
     page.insert_text((148, 532), reporte.material_utilizado, fontsize=8, color=(0,0,1))
     page.insert_text((148, 544), reporte.vehiculos_utilizados, fontsize=8, color=(0,0,1))
 
+    agregar_fotos_pdf(doc, reporte)
 
-    # Guardar en memoria
     buffer = BytesIO()
     doc.save(buffer)
     pdf_bytes = buffer.getvalue()
     doc.close()
 
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
-    fecha_str = reporte.fecha.strftime("%d-%m-%Y")  # Formato día-mes-año
+    fecha_str = reporte.fecha.strftime("%d-%m-%Y")
     response["Content-Disposition"] = f'inline; filename="REPORTE_CUADRILLA_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
@@ -627,6 +507,8 @@ def generar_pdf_chamizal(request, pk):
     page.insert_text((148, 635), reporte.equipo_utilizado, fontsize=9, color=(0,0,0))
     page.insert_text((148, 662), reporte.material_utilizado, fontsize=9, color=(0,0,0))
     page.insert_text((148, 675), reporte.vehiculos_utilizados, fontsize=9, color=(0,0,0))
+
+    agregar_fotos_pdf(doc, reporte)
 
     buffer = BytesIO()
     doc.save(buffer)
@@ -705,6 +587,8 @@ def generar_pdf_cultura(request, pk):
     # Nombre Ciudadano
     page.insert_text((400, 705), reporte.nombre_ciudadano, fontsize=8, color=(0,0,1))
 
+    agregar_fotos_pdf(doc, reporte)
+
     buffer = BytesIO()
     doc.save(buffer)
     pdf_bytes = buffer.getvalue()
@@ -767,6 +651,8 @@ def generar_pdf_fuentes(request, pk):
 
     # Observaciones
     page.insert_text((50, 260), reporte.observaciones, fontsize=8, color=(0,0,1))
+
+    agregar_fotos_pdf(doc, reporte)
 
     buffer = BytesIO()
     doc.save(buffer)
@@ -921,6 +807,8 @@ def generar_pdf_fugas(request, pk):
     rect_o = fitz.Rect(355, 520, 560, 620)
     page.insert_textbox(rect_o, reporte.observaciones, fontsize=9, color=(0,0,0))
 
+    agregar_fotos_pdf(doc, reporte)
+
     buffer = BytesIO()
     doc.save(buffer)
     pdf_bytes = buffer.getvalue()
@@ -996,6 +884,8 @@ def generar_pdf_pinturas(request, pk):
     rect_o = fitz.Rect(355, 515, 560, 620)
     page.insert_textbox(rect_o, reporte.observaciones, fontsize=9, color=(0,0,0), lineheight=1.6)
 
+    agregar_fotos_pdf(doc, reporte)
+
     buffer = BytesIO()
     doc.save(buffer)
     pdf_bytes = buffer.getvalue()
@@ -1052,6 +942,8 @@ def generar_pdf_riego_chamizal(request, pk):
     # Observaciones
     rect_o = fitz.Rect(50, 240, 550, 350)
     page.insert_textbox(rect_o, reporte.observaciones, fontsize=8, lineheight=1.8, color=(0,0,1))
+
+    agregar_fotos_pdf(doc, reporte)
 
     buffer = BytesIO()
     doc.save(buffer)
@@ -1175,6 +1067,7 @@ def generar_pdf_riego_pipa(request, pk):
     rect_o = fitz.Rect(117, 370, 480, 450)
     page.insert_textbox(rect_o, reporte.observaciones, fontsize=7, lineheight=1.8, color=(0,0,1))
 
+    agregar_fotos_pdf(doc, reporte)
 
     buffer = BytesIO()
     doc.save(buffer)
@@ -1328,6 +1221,8 @@ def generar_pdf_soldadura(request, pk):
 
     rect_o = fitz.Rect(358, 485, 560, 620)
     page.insert_textbox(rect_o, reporte.observaciones, fontsize=9, color=(0,0,0), lineheight=1.6)
+
+    agregar_fotos_pdf(doc, reporte)
 
     buffer = BytesIO()
     doc.save(buffer)

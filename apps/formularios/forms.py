@@ -46,12 +46,13 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
+        exclude = ['creado_por']
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones_parque": forms.Textarea(attrs={"rows": 3}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
-            "equipo_utilizado": forms.Textarea(attrs={"rows": 2}),
+            "equipo_utilizado": forms.Textarea(attrs={"rows": 10}),
             "material_utilizado": forms.Textarea(attrs={"rows": 2}),
             "vehiculos_utilizados": forms.Textarea(attrs={"rows": 2}),
 
@@ -61,7 +62,7 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input tipo-trabajo"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
@@ -108,7 +109,7 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
         model = ReporteChamizal
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
@@ -122,7 +123,7 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
@@ -166,11 +167,11 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
         model = ReporteCultura
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 8}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
         }
@@ -192,7 +193,7 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
         model = ReporteFuentes
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
@@ -206,7 +207,7 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
@@ -244,7 +245,7 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
         model = ReporteFugas
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
@@ -258,7 +259,7 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),        
@@ -303,7 +304,7 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
         model = ReportePintura
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
@@ -317,7 +318,7 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
@@ -371,8 +372,8 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         model = ReporteRiegoChamizal
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"})
 
 
@@ -397,10 +398,10 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
         model = ReporteRiegoPipas
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "hora_salida": forms.TimeInput(attrs={"type": "time"}),
             "hora_regreso": forms.TimeInput(attrs={"type": "time"}),
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
         }
         labels = {
             "dia": "Día",
@@ -425,7 +426,7 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
         model = ReporteSoldadura
         fields = "__all__"
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
             "pendientes": forms.Textarea(attrs={"rows": 3}),
@@ -439,7 +440,7 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
             "operativo_especial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
             # Selected
-            "dia": forms.Select(choices=DIAS_SEMANA, attrs={"class": "form-select form-control"}),
+            "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),

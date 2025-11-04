@@ -28,26 +28,3 @@ document.getElementById("print-selected").addEventListener("click", function() {
     window.open(`/formularios/fuentes/reporte/pdf-multiple/${ids.join(",")}`, "_blank");
 });
 
-function ValidaSuperficieAtendida() {
-    let v1 = parseInt(document.getElementById("id_limpieza_papeleo_m2").value) || 0;
-    let comparacion = parseInt(document.getElementById("id_superficie_atendida_m2").value) || 0;
-
-    document.getElementById("id_limpieza_papeleo_m2").classList.remove("is-invalid");
-
-    if (v1 > comparacion) {
-        showModal(`La limpieza de papeleo no puede ser mayor que la superficie total.`, `alert`);
-
-        document.getElementById("id_limpieza_papeleo_m2").classList.add("is-invalid");
-        return false;
-    }
-    return true;
-}
-
-document.querySelector('form').addEventListener('submit', function(e){
-    if(!ValidaSuperficieAtendida()){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-    }
-});
-
-

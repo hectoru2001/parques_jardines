@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4 d-flex justify-content-center">
+  <div class="card shadow-sm" style="width: 500px;">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Agregar Folio del PAC - {{ grupo }}</h5>
+    </div>
+    <div class="card-body">
+      <!-- Información del reporte -->
+      <div class="mb-3 p-2 border rounded bg-light">
+        <h6>Información del Reporte</h6>
+        <ul class="list-unstyled mb-0">
+          <li><strong>ID:</strong> {{ reporte.id }}</li>
+          <li><strong>Fecha:</strong> {{ reporte.fecha }}</li>
+          <li><strong>Distrito:</strong> {{ reporte.distrito }}</li>
+          <li><strong>Coordinador:</strong> {{ reporte.coordinador }}</li>
+          <li><strong>Trabajo Realizado:</strong> {{ reporte.trabajo_realizado }}</li>
+          <!-- Agrega otros campos relevantes según tu modelo -->
+        </ul>
+      </div>
+
+      <!-- Formulario para editar Folio PAC -->
+      <form method="post" id="folioPacForm">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_folio_pac" class="form-label">Nuevo Folio PAC</label>
+          <input type="text" name="folio_pac" id="id_folio_pac" class="form-control">
+        </div>
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary me-2">Guardar</button>
+          <a href="{% url 'lista_reportes' tipo_reporte=tipo %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -67,17 +67,31 @@ WSGI_APPLICATION = 'parques_jardines.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'reportespyj',
-        'USER': 'usr_rep_pyj',
-        'PASSWORD': 'P&JrU5r4dm1',
-        'HOST': '10.236.62.59',
-        'PORT': '5432',
-    }
-}
+if not DEBUG:
 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'reportespyj',
+            'USER': 'usr_rep_pyj',
+            'PASSWORD': 'P&JrU5r4dm1',
+            'HOST': '10.236.62.59',
+            'PORT': '5432',
+        }
+    }
+
+else:
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'parques_jardines',
+            'USER': 'postgres',
+            'PASSWORD': '123456',
+            'HOST': '10.236.62.93',
+            'PORT': '5433',
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -111,8 +125,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

@@ -1,0 +1,23 @@
+<form method="get" action="{% url 'lista_reportes' tipo_reporte %}">
+    <div class="input-group">
+
+        <!-- Selector de filtro -->
+        <select class="form-select" id="filtro-select" name="filtro" onchange="toggleFecha()">
+            <option value="id" {% if filtro == 'id' %}selected{% endif %}>ID de reporte</option>
+            <option value="folio" {% if filtro == 'folio' %}selected{% endif %}>Folio PAC</option>
+            <option value="fecha" {% if filtro == 'fecha' %}selected{% endif %}>Fecha</option>
+        </select>
+
+        <!-- Input de búsqueda general -->
+        <input type="text" class="form-control" id="query-input" name="query" placeholder="Ingrese su búsqueda"
+            value="{{ valor }}">
+
+        <!-- Inputs de fecha (inicialmente ocultos) -->
+        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-inicio"
+            name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-fin"
+            name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+
+        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+    </div>
+</form>

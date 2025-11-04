@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-
+{% load usuario_tags %}
 {% block content %}
+{% include "partials/messages.html" %}
 <div class="container mt-3">
     <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
 </div>
@@ -11,7 +12,7 @@
             <p class="text-muted mb-0">Gestión y visualización de todos los reportes del sistema</p>
         </div>
         <div>
-            <a href="{% url 'generar_pinturas' %}" class="btn btn-primary">
+            <a href="{% url 'generar_formato' 'pinturas' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Nuevo Reporte
             </a>
         </div>
@@ -20,16 +21,8 @@
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <div class="row justify-content-between align-items-center p-4 border-bottom">
-                <div class="col-md-6">
-                    <form method="get" action="{% url 'lista_pinturas' %}">
-                        <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0" name="id"  placeholder="Buscar por # de reporte" value="{{ request.GET.id }}">
-                            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
-                        </div>
-                    </form>
+                <div class="col-md-12">
+                    {% include "partials/buscador_reportes.html" %}
                 </div>
             </div>
 
@@ -38,6 +31,7 @@
                     <thead class="">
                         <tr>
                             <th ># Reporte</th>
+                            <th ># Folio PAC</th>
                             <th >Fecha</th>
                             <th >Día</th>
                             <th >Distrito</th>
@@ -51,6 +45,16 @@
                         {% for reporte in reportes %}
                         <tr class="">
                             <td>{{ reporte.id }}</td>
+                            <td>
+                                {% if reporte.folio_pac %}
+                                    {{ reporte.folio_pac }}
+                                {% else %}
+                                    <a href="{% url 'editar_folio_pac' tipo='pinturas' pk=reporte.pk %}"
+                                        class="text-decoration-none editar-folio">
+                                        Agregar
+                                    </a>
+                                {% endif %}
+                            </td>
                             <td>{{ reporte.fecha }}</td>
                             <td><span class="badge bg-light text-dark">{{ reporte.dia }}</span></td>
                             <td>{{ reporte.distrito }}</td>
@@ -64,9 +68,13 @@
                                 </div>
                             </td>
                             <td class="text-center pe-4">
-                                {% if user.capturista %}
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'pinturas_editar' reporte.pk %}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Editar">
+
+                                    <a href="#" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reporteModal" data-tipo="pinturas" data-id="{{ reporte.id }}">
+                                            <i class="bi bi-eye"></i> 
+                                    </a>
+                                {% if user|es_supervisor %}
+                                    <a href="{% url 'editar_reporte' tipo_reporte='pinturas' pk=reporte.id %}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <a href="{% url 'reporte_pdf_pinturas' reporte.pk %}" target="_blank" class="btn btn-sm btn-outline-primary">
@@ -110,43 +118,12 @@
                 </table>
             </div>
 
-            {% if reportes.has_other_pages %}
-            <div class="d-flex justify-content-between align-items-center p-4 border-top">
-                <div class="text-muted">
-                    Mostrando {{ reportes.start_index }} - {{ reportes.end_index }} de {{ reportes.paginator.count }} registros
-                </div>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination mb-0">
-                        {% if reportes.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ reportes.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                        
-                        {% for i in reportes.paginator.page_range %}
-                            {% if reportes.number == i %}
-                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
-                            {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if reportes.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ reportes.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
-            {% endif %}
+            
         </div>
     </div>
 </div>
+
+{% include 'partials/modal.html' %}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

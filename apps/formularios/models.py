@@ -1,6 +1,17 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-class ReporteCuadrilla(models.Model):
+
+
+class ReportesBase(models.Model):
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    foto_antes = models.ImageField(upload_to="reporte/fotos/antes/", blank=True, null=True)
+    foto_despues = models.ImageField(upload_to="reporte/fotos/despues/", blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+class ReporteCuadrilla(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
     # Datos generales
@@ -89,7 +100,7 @@ class ReporteCuadrilla(models.Model):
         return f"Reporte {self.numero_reporte} - {self.dia}"
 
 
-class ReporteChamizal(models.Model):
+class ReporteChamizal(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
 
@@ -135,7 +146,7 @@ class ReporteChamizal(models.Model):
     def __str__(self):
         return f"Reporte Chamizal"
 
-class ReporteCultura(models.Model):
+class ReporteCultura(ReportesBase):
     folio_pac = models.IntegerField()
 
 
@@ -161,7 +172,7 @@ class ReporteCultura(models.Model):
     responsable = models.CharField(max_length=100, blank=True)
     nombre_ciudadano = models.CharField(max_length=100, blank=True)
 
-class ReporteFuentes(models.Model):
+class ReporteFuentes(ReportesBase):
     folio_pac = models.IntegerField()
 
 
@@ -183,7 +194,7 @@ class ReporteFuentes(models.Model):
     calle2 = models.CharField(max_length=100)
     observaciones = models.TextField()
 
-class ReporteFugas(models.Model):
+class ReporteFugas(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
     distrito = models.CharField(max_length=100)
@@ -226,7 +237,7 @@ class ReporteFugas(models.Model):
     material_utilizado = models.TextField()
     vehiculos_utilizados = models.TextField()
 
-class ReportePintura(models.Model):
+class ReportePintura(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
 
@@ -280,7 +291,7 @@ class ReportePintura(models.Model):
     vehiculos_utilizados = models.TextField()
 
 
-class ReporteRiegoChamizal(models.Model):
+class ReporteRiegoChamizal(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
 
@@ -299,7 +310,7 @@ class ReporteRiegoChamizal(models.Model):
     ubicacion_area = models.CharField(max_length=200)
     observaciones = models.TextField()
 
-class ReporteRiegoPipas(models.Model):
+class ReporteRiegoPipas(ReportesBase):
     folio_pac = models.IntegerField()
 
 
@@ -321,7 +332,7 @@ class ReporteRiegoPipas(models.Model):
 
     observaciones = models.TextField()
 
-class ReporteSoldadura(models.Model):
+class ReporteSoldadura(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
 
 

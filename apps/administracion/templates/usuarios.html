@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% load static %}
+{% load usuario_tags %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header con título y botón -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="title-primary">Gestión de Usuarios</h2>
+            <p class="text-muted">Administra los usuarios y sus permisos del sistema</p>
+        </div>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            <i class="fas fa-user-plus me-2"></i>Crear Usuario
+        </button>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Tarjeta de contenido -->
+    <div class="card shadow-sm border-0">
+        <div class="row justify-content-between align-items-center p-4 border-bottom">
+            <div class="col-md-12">
+                <form method="get" action="">
+                    <div class="input-group">
+
+                        <!-- Selector de filtro -->
+                        <select class="form-select" id="filtro-select" name="filtro" onchange="toggleFecha()">
+                            <option value="id" {% if filtro == 'id' %}selected{% endif %}>ID de reporte</option>
+                            <option value="folio" {% if filtro == 'folio' %}selected{% endif %}>Folio PAC</option>
+                            <option value="fecha" {% if filtro == 'fecha' %}selected{% endif %}>Fecha</option>
+                        </select>
+
+                        <!-- Input de búsqueda general -->
+                        <input type="text" class="form-control" id="query-input" name="query" placeholder="Ingrese su búsqueda"
+                            value="{{ valor }}">
+
+                        <!-- Inputs de fecha (inicialmente ocultos) -->
+                        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-inicio"
+                            name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+                        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-fin"
+                            name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Tabla responsive -->
+            <div class="table-container">
+                <table class="custom-table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Usuario</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Grupos</th>
+                            <th>Fecha de creación</th>
+                            <th>Última sesión</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            {# Mostrar siempre si el usuario es administrador #}
+                            {% if user|pertenece:"Administrador" or not u|pertenece:"Administrador" %}
+                            <tr>
+                                <td class="ps-4 fw-semibold">{{ u.username }}</td>
+                                <td>{{ u.first_name|default:"-" }}</td>
+                                <td>{{ u.last_name|default:"-" }}</td>
+                                <td>
+                                    {% for g in u.groups.all %}
+                                        <span class="me-1">{{ g.name }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">Sin grupos</span>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ u.date_joined }}</td>
+                                <td>{{ u.last_login|default:"Aún no inicia sesión" }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group" role="group">
+                                        <!-- Editar -->
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditar{{ u.id }}">
+                                            <i class="fas fa-edit me-1"></i>
+                                        </button>
+                                        <!-- Eliminar -->
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ u.id }}">
+                                            <i class="fas fa-trash me-1"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+        <!-- Footer con paginación (si es necesario) -->
+        {% if users.has_other_pages %}
+        <div class="card-footer bg-white py-3">
+            <nav aria-label="Paginación de usuarios">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if users.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.previous_page_number }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in users.paginator.page_range %}
+                    <li class="page-item {% if users.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.next_page_number }}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para crear usuario -->
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="crear">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCrearLabel">
+                        <i class="fas fa-user-plus me-2"></i>Crear Nuevo Usuario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Usuario <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="first_name" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" name="last_name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Grupos</label>
+                        <select name="grupos" class="form-select" multiple>
+                            {% for g in grupos %}
+                                {% if user|pertenece:"Administrador" or g.name != "Administrador" %}
+                                    <option value="{{ g.name }}" {% if g in u.groups.all %}selected{% endif %}>
+                                        {{ g.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Mantén presionada la tecla Ctrl para seleccionar múltiples grupos</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para cada usuario (editar y eliminar) -->
+{% for u in users %}
+<!-- Modal editar usuario -->
+<div class="modal fade" id="modalEditar{{ u.id }}" tabindex="-1" aria-labelledby="modalEditarLabel{{ u.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="editar">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarLabel{{ u.id }}">
+                        <i class="fas fa-edit me-2"></i>Editar Usuario: {{ u.username }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Usuario <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" value="{{ u.username }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nueva Contraseña</label>
+                            <input type="password" name="password" class="form-control" placeholder="Dejar en blanco para mantener la actual">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ u.first_name }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ u.last_name }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Grupos</label>
+                        <select name="grupos" class="form-select" multiple>
+                            {% for g in grupos %}
+                                {% if user|pertenece:"Administrador" or g.name != "Administrador" %}
+                                    <option value="{{ g.name }}" {% if g in u.groups.all %}selected{% endif %}>
+                                        {{ g.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <div class="form-text">Mantén presionada la tecla Ctrl para seleccionar múltiples grupos</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal eliminar usuario -->
+<div class="modal fade" id="modalEliminar{{ u.id }}" tabindex="-1" aria-labelledby="modalEliminarLabel{{ u.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="eliminar">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalEliminarLabel{{ u.id }}">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ u.username }}</strong>?</p>
+                    <p class="text-danger">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Búsqueda en tiempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

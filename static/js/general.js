@@ -21,7 +21,40 @@ function showModal(message, type) {
     });
 }
 
+function toggleFecha() {
+    const filtro = document.getElementById('filtro-select').value;
+    const queryInput = document.getElementById('query-input');
+    const fechaInicio = document.getElementById('fecha-inicio');
+    const fechaFin = document.getElementById('fecha-fin');
 
+    if (filtro === 'fecha') {
+        queryInput.classList.add('d-none');
+        fechaInicio.classList.remove('d-none');
+        fechaFin.classList.remove('d-none');
+    } else {
+        queryInput.classList.remove('d-none');
+        fechaInicio.classList.add('d-none');
+        fechaFin.classList.add('d-none');
+    }
+}
+
+function seleccionarDiaAuto(){
+    const inputFecha = document.getElementById('id_fecha');
+    const selectDia = document.getElementById('id_dia');
+    const valorFecha = inputFecha.value;
+
+    if (!valorFecha) {
+        selectDia.value = "";
+        return;
+    }
+
+    const fecha = new Date(valorFecha + "T00:00:00");
+    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const nombreDia = dias[fecha.getDay()];
+
+    // Asignar el valor correspondiente en el <select>
+    selectDia.value = nombreDia;
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const contenedor = document.querySelector('.logica-seleccion');
@@ -29,9 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputsNumericos = document.querySelectorAll('input[type="number"]');
     const checkBoxes = document.getElementById('list-checkboxes');
 
-    /*inputsNumericos.forEach(input => {
-        input.value = ''; // Se queda vacío pero sigue siendo requerido
-    });*/
+    toggleFecha();
+    seleccionarDiaAuto();
 
     if (formulario) {
         formulario.addEventListener('submit', function (e) {
@@ -63,6 +95,38 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
             });
+        });
+    }
+
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    }
+
+    const fotoAntesInput = document.getElementById('id_foto_antes');
+    const fotoDespuesInput = document.getElementById('id_foto_despues');
+
+    if (fotoAntesInput) {
+        previewImage(fotoAntesInput, 'preview_antes'); // muestra la imagen existente al cargar
+        fotoAntesInput.addEventListener('change', function() {
+            previewImage(this, 'preview_antes');
+        });
+    }
+
+    if (fotoDespuesInput) {
+        previewImage(fotoDespuesInput, 'preview_despues'); // muestra la imagen existente al cargar
+        fotoDespuesInput.addEventListener('change', function() {
+            previewImage(this, 'preview_despues');
         });
     }
 });

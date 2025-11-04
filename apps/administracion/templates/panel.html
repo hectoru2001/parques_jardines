@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% load usuario_tags %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <h2 class="text-center title-primary mb-4">Panel de Control</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Registro de logs -->
+        {% if user|pertenece:"Administrador" %}
+
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'cargarlogs' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-ambulance fa-3x"></i>
+                        </div>
+                        <h5 class="card-title fw-semibold text-dark mb-0">Registro de Logs</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        <!-- Gestión de usuarios -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'gestion_usuarios' %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-users fa-3x"></i>
+                        </div>
+                        <h5 class="card-title fw-semibold text-dark mb-0">Gestión de Usuarios</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Agregar efecto hover con JavaScript puro
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.hover-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'all 0.3s ease';
+                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            });
+        });
+    });
+</script>
+{% endblock %}

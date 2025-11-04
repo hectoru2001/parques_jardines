@@ -1,0 +1,12 @@
+<div class="container-fluid">
+  <table class="table table-bordered table-striped table-sm">
+    <tbody>
+      {% for key, value in datos.items %}
+      <tr>
+        <th class="text-muted" style="width: 30%;">{{ key|capfirst }}</th>
+        <td>{{ value|safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

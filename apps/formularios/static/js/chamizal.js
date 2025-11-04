@@ -1,26 +1,31 @@
-
 function ValidaSuperficieAtendida() {
-    let v1 = parseInt(document.getElementById("id_cesped_cortado_m2").value) || 0;
-    let v2 = parseInt(document.getElementById("id_deshierbe_m2").value) || 0;
-    let v3 = parseInt(document.getElementById("id_papeleo_m2").value) || 0;
+    const campos = [
+        "id_cesped_cortado_m2",
+        "id_deshierbe_m2",
+    ];
 
-    let comparacion = parseInt(document.getElementById("id_superficie_atendida_m2").value) || 0;
-    let SumaCampos = v1 + v2 + v3;
+    // Limpiar clases de error
+    campos.forEach(id => document.getElementById(id).classList.remove("is-invalid"));
 
-    document.getElementById("id_cesped_cortado_m2").classList.remove("is-invalid");
-    document.getElementById("id_deshierbe_m2").classList.remove("is-invalid");
-    document.getElementById("id_papeleo_m2").classList.remove("is-invalid");
+    // Obtener valores de los campos
+    let suma = campos.reduce((acc, id) => {
+        return acc + (parseInt(document.getElementById(id).value) || 0);
+    }, 0);
 
-    if (SumaCampos > comparacion) {
-        showModal("La suma (" + SumaCampos + ") no puede ser mayor que la superficie total (" + comparacion + ").");
+    const comparacion = parseInt(document.getElementById("id_superficie_atendida_m2").value) || 0;
 
-        document.getElementById("id_cesped_cortado_m2").classList.add("is-invalid");
-        document.getElementById("id_deshierbe_m2").classList.add("is-invalid");
-        document.getElementById("id_papeleo_m2").classList.add("is-invalid");
+    if (suma > comparacion) {
+        // Mostrar modal de error
+        showModal(`La suma de los campos no puede ser mayor que la superficie total (${comparacion}).`, "alert");
+
+        // Marcar campos inválidos
+        campos.forEach(id => document.getElementById(id).classList.add("is-invalid"));
         return false;
     }
+
     return true;
 }
+
 
 document.querySelector('form').addEventListener('submit', function(e){
     if(!ValidaSuperficieAtendida()){
