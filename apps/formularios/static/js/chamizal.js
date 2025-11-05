@@ -4,22 +4,21 @@ function ValidaSuperficieAtendida() {
         "id_deshierbe_m2",
     ];
 
-    // Limpiar clases de error
     campos.forEach(id => document.getElementById(id).classList.remove("is-invalid"));
 
-    // Obtener valores de los campos
-    let suma = campos.reduce((acc, id) => {
-        return acc + (parseInt(document.getElementById(id).value) || 0);
-    }, 0);
-
     const comparacion = parseInt(document.getElementById("id_superficie_atendida_m2").value) || 0;
+    let error = false;
 
-    if (suma > comparacion) {
-        // Mostrar modal de error
-        showModal(`La suma de los campos no puede ser mayor que la superficie total (${comparacion}).`, "alert");
+    campos.forEach(id => {
+        const valor = parseInt(document.getElementById(id).value) || 0;
+        if (valor > comparacion) {
+            document.getElementById(id).classList.add("is-invalid");
+            error = true;
+        }
+    });
 
-        // Marcar campos inválidos
-        campos.forEach(id => document.getElementById(id).classList.add("is-invalid"));
+    if (error) {
+        showModal(`Uno o más campos no pueden ser mayores que la superficie total (${comparacion}).`, "alert");
         return false;
     }
 

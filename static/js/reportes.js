@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    /* === Modal existente: reporteModal === */
     const reporteModal = document.getElementById('reporteModal');
     if (reporteModal) {
         reporteModal.addEventListener('show.bs.modal', function(event) {

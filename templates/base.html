@@ -438,7 +438,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg rsc-navbar">
-        <div class="container">
+        <div class="container-fluid d-flex align-items-center">
             <a class="navbar-brand rsc-navbar-brand" href="#">
             <span></span>
             </a>
@@ -474,7 +474,7 @@
                     </li>-->
                 </ul>
 
-                <div class="dropdown ms-lg-2">
+                <div class="dropdown ms-auto">
                     {% if user.is_authenticated %}
                         <button class="btn rsc-user-btn dropdown-toggle" type="button" id="rscUserMenu"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -492,7 +492,7 @@
     </nav>
 
     <!-- Contenido principal -->
-    <main id="mainContent" class="container py-4 rsc-main-content bg-gray-100">
+    <main id="mainContent" class="py-4 px-4 rsc-main-content bg-gray-100">
         {% block content %}
         {% endblock %}
     </main>

@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5">
     <h1 class="title-primary mb-4">Registro de Logs del Sistema</h1>
 
     <!-- Filtros de búsqueda -->
@@ -63,7 +62,6 @@
     {% else %}
         <p class="text-secondary mt-3">No hay registros disponibles.</p>
     {% endif %}
-</div>
 
 <!-- Filtro en tiempo real -->
 <script src="{% static 'js/logs.js' %}"></script>

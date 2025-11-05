@@ -3,9 +3,7 @@
 {% block content %}
 {% include "partials/messages.html" %}
 
-<div class="container mt-3">
-    <a class="btn btn-back" href="{% url 'menu' %}"><span><i class="bi bi-arrow-left"></i></span> Volver</a>
-</div>
+
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -36,9 +34,9 @@
                             <th >Fecha</th>
                             <th >Día</th>
                             <th >Distrito</th>
-                            <th >Coordinador</th>
                             <th >Encargado</th>
                             <th >Trabajo Realizado</th>
+                            <th> Creado Por </th>
                             <th  class="text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
@@ -59,7 +57,6 @@
                             <td>{{ reporte.fecha }}</td>
                             <td><span class="badge bg-light text-dark">{{ reporte.dia }}</span></td>
                             <td>{{ reporte.distrito }}</td>
-                            <td>{{ reporte.coordinador }}</td>
                             <td>{{ reporte.encargado_cuadrilla }}</td>
                             <td>
                                 <div class="d-flex">
@@ -68,6 +65,8 @@
                                     </span>
                                 </div>
                             </td>
+                            <td>{{ reporte.creado_por.get_full_name }}</td>
+
                             <td class="text-center pe-4">
                                 <div class="btn-group" role="group">
 

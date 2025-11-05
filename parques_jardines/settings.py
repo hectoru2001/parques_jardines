@@ -16,9 +16,9 @@ SECRET_KEY = '_61-pJgQMEV6rPL7JI_O758wTIh3SqCjNwTMGrr1fSvfBLI9fV8xjqkOGO59suQyel
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93', 'reportespyj.juarez.gob.mx']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93', 'reportespyj.juarez.gob.mx', 'reportespyj.gobjuarez.mpio']
 
-CSRF_TRUSTED_ORIGINS = ['https://reportespyj.juarez.gob.mx']
+CSRF_TRUSTED_ORIGINS = ['https://reportespyj.juarez.gob.mx', 'https://reportespyj.gobjuarez.mpio']
 
 # Application definition
 INSTALLED_APPS = [

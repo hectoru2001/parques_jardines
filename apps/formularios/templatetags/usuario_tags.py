@@ -4,27 +4,28 @@ register = template.Library()
 
 # Mapeo de grupos a reportes
 GRUPO_REPORTES = {
-    "1": ["Riego Chamizal"],
-    "2": ["Reporte Chamizal"],
-    "3": ["Riego Chamizal", "Reporte Chamizal"],
-    "4": ["Reporte Cuadrilla"],
-    "5": ["Reporte Pintura"],
-    "6": ["Reporte Fugas", "Reporte Cuadrilla"],
-    "7": ["Soldadura"],
+    "riego_chamizal": ["riego_chamizal"],
+    "chamizal": ["chamizal"],
+    "cuadrilla": ["cuadrilla"],
+    "pintura": ["pintura"],
+    "fugas": ["fugas"],
+    "pipas": ["pipas"],
+    "soldadura": ["soldadura"],
+    "cultura": ["cultura"],
+    "fuentes": ["fuentes"],
 }
 
 TODO = ["Supervisor", "Administrador"]
 
 @register.filter(name='tiene_acceso_reporte')
-def tiene_acceso_reporte(user, report_name):
+def tiene_acceso_reporte(user, report_slug):
     if user.groups.filter(name__in=TODO).exists():
         return True
 
-    for group in user.groups.all():
-        if group.name in GRUPO_REPORTES:
-            if report_name in GRUPO_REPORTES[group.name]:
-                return True
-    return False
+    user_groups = [g.name for g in user.groups.all()]
+    allowed_groups = GRUPO_REPORTES.get(report_slug, [])
+
+    return any(group in allowed_groups for group in user_groups)
 
 @register.filter
 def es_supervisor(user):

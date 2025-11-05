@@ -7,7 +7,7 @@ from django.contrib import messages
 
 @login_required
 def gestion_usuarios(request):
-    # Solo supervisores y administradores
+    # Solo administradores y supervisores pueden gestionar usuarios
     if not request.user.groups.filter(name__in=["Administrador", "Supervisor"]).exists():
         messages.error(request, "No tienes permisos para acceder a esta sección.")
         return redirect('home')
@@ -15,7 +15,8 @@ def gestion_usuarios(request):
     users = User.objects.all().order_by('username')
     grupos = Group.objects.all()
 
-    # Identificar si el usuario actual es supervisor
+    # Identificar roles del usuario actual
+    es_administrador = request.user.groups.filter(name="Administrador").exists()
     es_supervisor = request.user.groups.filter(name="Supervisor").exists()
 
     if request.method == 'POST':
@@ -84,6 +85,7 @@ def gestion_usuarios(request):
     return render(request, 'usuarios.html', {
         'users': users,
         'grupos': grupos,
+        'es_administrador': es_administrador,
         'es_supervisor': es_supervisor
     })
 

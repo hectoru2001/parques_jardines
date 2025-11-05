@@ -19,6 +19,10 @@ from io import BytesIO
 from .decoradores import requiere_grupo, es_capturista
 import os
 from django.conf import settings
+import base64
+from django.core.files.base import ContentFile
+from django.contrib.auth.models import User
+
 
 CONFIG_REPORTES = {
         "cuadrilla": {
@@ -112,6 +116,7 @@ def plantilla(request):
         "ultimos_reportes": ultimos_reportes
     })
 
+@login_required
 def menu_botones(request):
     return render(request, "main.html")
 
@@ -155,15 +160,7 @@ def generar_formato(request, tipo_reporte):
             reporte.save()
             messages.success(request, "Reporte generado correctamente")
 
-            lista_config = CONFIG_LISTAS.get(tipo_reporte)
-            if lista_config:
-                template_lista = lista_config['template']
-                reportes = lista_config['modelo'].objects.all()
-                return render(request, template_lista, {
-                    'reportes': reportes,
-                    'grupo': lista_config['grupo'],
-                    'tipo_reporte': tipo_reporte
-                })
+            return redirect('lista_reportes', tipo_reporte=tipo_reporte )
         else:
             print(form.errors)
     else:
@@ -204,7 +201,7 @@ def lista_reportes(request, tipo_reporte):
     elif filtro == "fecha" and fecha_inicio and fecha_fin:
         reportes = reportes.filter(fecha__range=[fecha_inicio, fecha_fin])
 
-    reportes = reportes.order_by("-id")
+    reportes = reportes.order_by("-id").distinct()
 
     context = {
         "reportes": reportes,
@@ -260,15 +257,8 @@ def editar_folio_pac(request, tipo, pk):
         reporte.folio_pac = folio
         reporte.save()
 
-        lista_config = CONFIG_LISTAS.get(tipo)
-        if lista_config:
-            template_lista = lista_config['template']
-            reportes = lista_config['modelo'].objects.all()
-            return render(request, template_lista, {
-                'reportes': reportes,
-                'grupo': lista_config['grupo'],
-                'tipo_reporte': tipo
-            })
+        messages.success(request, "Folio PAC actualizado con éxito")
+        return redirect('lista_reportes', tipo_reporte=tipo)
 
     return render(request, 'partials/modal_folio_pac.html', {
         'reporte': reporte,
@@ -320,15 +310,7 @@ def editar_reporte(request, tipo_reporte, pk):
             reporte.save()
             messages.success(request, "Reporte actualizado correctamente")
 
-            lista_config = CONFIG_LISTAS.get(tipo_reporte)
-            if lista_config:
-                template_lista = lista_config['template']
-                reportes = lista_config['modelo'].objects.all()
-                return render(request, template_lista, {
-                    'reportes': reportes,
-                    'grupo': lista_config['grupo'],
-                    'tipo_reporte': tipo_reporte
-                })
+            return redirect("lista_reportes", tipo_reporte=tipo_reporte)
         else:
             print(form.errors)
     else:
@@ -349,8 +331,6 @@ def editar_reporte(request, tipo_reporte, pk):
 def draw_checkbox(page, x, y, checked=False):
     if checked:
         page.insert_text((x, y), "X", fontsize=15, color=(0, 0, 0))
-
-
 
 # ===================== Generar PDF =====================
 def agregar_fotos_pdf(doc, reporte):
@@ -1295,11 +1275,38 @@ def api_guardar_generico(request, form_name):
             return JsonResponse({'status': 'error', 'message': 'Formulario no encontrado'}, status=404)
 
         data = json.loads(request.body)
+
+        archivos = {}
+        for campo, valor in list(data.items()):
+            if isinstance(valor, str) and valor.startswith("data:image"):
+                formato, encoded = valor.split(";base64,")
+                extension = formato.split("/")[-1]
+                archivo = ContentFile(base64.b64decode(encoded), name=f"{campo}.{extension}")
+                archivos[campo] = archivo
+                del data[campo]
+
         form = form_class(data)
+
         if form.is_valid():
-            instance = form.save()
+            instance = form.save(commit=False)
+
+            # Asignar imágenes
+            for campo, archivo in archivos.items():
+                setattr(instance, campo, archivo)
+
+            if request.user.is_authenticated:
+                instance.creado_por = request.user
+            else:
+                instance.creado_por = None
+            
+
+            instance.save()
+
             return JsonResponse({'status': 'ok', 'id': instance.id}, status=201)
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+

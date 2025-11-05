@@ -98,36 +98,17 @@
         padding: 1.5rem;
     }
     
-    .search-filter {
-        min-width: auto;
-    }
-    
     .reports-grid {
         grid-template-columns: 1fr;
     }
-    
-    .card-actions {
-        flex-direction: column;
-    }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 303px) {
     .reports-dashboard {
         padding: 1rem;
     }
-    
-    .category-filters {
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
-        flex-wrap: nowrap;
-    }
-    
-    .category-filters::-webkit-scrollbar {
-        height: 4px;
-    }
-    
-    .category-filters::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 4px;
+
+    .card-actions {
+        flex-direction: column;
     }
 }

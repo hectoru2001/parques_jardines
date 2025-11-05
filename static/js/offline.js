@@ -68,14 +68,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const exito = await enviar(formName, item.datos);
             if (!exito) {
                 todosExitosos = false;
-                alert('⚠️ Error al subir un registro. Inténtalo de nuevo.');
+                showModal('Error al subir un registro. Verifica la conexión e intenta de nuevo. ⚠️', 'error');
                 break;
             }
         }
 
         if (todosExitosos) {
             limpiarPendientes(formName);
-            alert('✅ Todos los registros se guardaron en el servidor.');
+            showModal('Todos los registros se guardaron en el servidor. ✅', 'success');
             const redirectUrl = document.querySelector(`form[data-form-name="${formName}"]`)?.dataset.redirect;
             if (redirectUrl) window.location.href = redirectUrl;
         }
@@ -92,19 +92,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const spanContador = document.getElementById(`contador-pendientes`);
 
         // Interceptar submit solo si no hay conexión
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             if (navigator.onLine) return; // flujo normal
 
             e.preventDefault();
             e.stopPropagation();
 
+            const formData = new FormData(form);
             const datos = {};
-            new FormData(form).forEach((v, k) => datos[k] = v);
+
+            async function fileToBase64(file) {
+                return new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result); // Base64 lista
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            for (const [k, v] of formData.entries()) {
+                if (v instanceof File && v.size > 0) {
+                    // Convertir imagen a Base64
+                    datos[k] = await fileToBase64(v);
+                } else {
+                    datos[k] = v;
+                }
+            }
 
             guardarPendiente(formName, datos);
-            alert('📱 Sin conexión. Guardado localmente. Usa el botón verde para subir después.');
-
+            showModal('Sin conexión. Reporte guardado en el dispositivo. Usa el botón verde para guardar los reportes pendientes.', 'alert');
+            //form.reset();
         });
+
 
         // Botón de sincronización
         if (btnSincronizar) {
