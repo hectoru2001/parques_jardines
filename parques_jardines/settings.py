@@ -14,7 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '_61-pJgQMEV6rPL7JI_O758wTIh3SqCjNwTMGrr1fSvfBLI9fV8xjqkOGO59suQyel4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
+BDD_PRUEBA = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93', 'reportespyj.juarez.gob.mx', 'reportespyj.gobjuarez.mpio']
 
@@ -67,8 +68,7 @@ WSGI_APPLICATION = 'parques_jardines.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if not DEBUG:
-
+if not BDD_PRUEBA:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -79,9 +79,7 @@ if not DEBUG:
             'PORT': '5432',
         }
     }
-
 else:
-    
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -92,6 +90,7 @@ else:
             'PORT': '5433',
         }
     }
+    
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
