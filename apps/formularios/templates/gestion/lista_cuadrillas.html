@@ -37,6 +37,7 @@
                             <th >Encargado</th>
                             <th >Trabajo Realizado</th>
                             <th >Creado Por</th>
+                            <th >Estatus</th>
                             <th  class="text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
@@ -67,6 +68,15 @@
                                 </div>
                             </td>
                             <td>{{ reporte.creado_por.get_full_name }}</td>
+                            <td>
+                                {% if reporte.estatus == '0' %}
+                                    <span class="badge bg-success">Verde</span>
+                                {% elif reporte.estatus == '1' %}
+                                    <span class="badge bg-danger">Rojo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Desconocido</span>
+                                {% endif %}
+                            </td>
                             <td class="text-center pe-4">
                                 <div class="btn-group" role="group">
 
@@ -80,30 +90,40 @@
                                     <a href="{% url 'reporte_pdf' reporte.pk %}" target="_blank" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Generar PDF">
                                         <i class="bi bi-file-earmark-pdf"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-target="#deleteModal{{ reporte.pk }}" title="Eliminar">
+                                    <a href="{% url 'cambiar_estatus' tipo_reporte='cuadrilla' pk=reporte.pk %}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="tooltip"
+                                        title="Cambiar estatus">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ reporte.pk }}" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
                                 {% endif %}
-                                <div class="modal fade" id="deleteModal{{ reporte.pk }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Confirmar Eliminación</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                ¿Estás seguro de que deseas eliminar el reporte #{{ reporte.numero_reporte }}? Esta acción no se puede deshacer.
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                <a href="" class="btn btn-danger">Eliminar</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </td>
                         </tr>
+                        <div class="modal fade" id="deleteModal{{ reporte.pk }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirmar Eliminación</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        ¿Estás seguro de que deseas eliminar el reporte #{{ reporte.pk }}? Esta acción no se puede deshacer.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <form action="{% url 'eliminar_reporte' tipo_reporte='cuadrilla' pk=reporte.pk %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% empty %}
                         <tr>
                             <td colspan="8" class="text-center py-5">

@@ -23,6 +23,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 
+from apps.administracion.models import LogSistema
 
 CONFIG_REPORTES = {
         "cuadrilla": {
@@ -120,7 +121,6 @@ def plantilla(request):
 def menu_botones(request):
     return render(request, "main.html")
 
-
 # ===================== Generar nuevo reporte =====================
 @login_required
 def generar_formato(request, tipo_reporte):
@@ -159,7 +159,7 @@ def generar_formato(request, tipo_reporte):
 
             reporte.save()
             messages.success(request, "Reporte generado correctamente")
-
+            LogSistema.objects.create(usuario=request.user, accion=f"Generó un nuevo reporte {tipo_reporte} con ID {reporte.id}")
             return redirect('lista_reportes', tipo_reporte=tipo_reporte )
         else:
             print(form.errors)
@@ -258,6 +258,7 @@ def editar_folio_pac(request, tipo, pk):
         reporte.save()
 
         messages.success(request, "Folio PAC actualizado con éxito")
+        LogSistema.objects.create(usuario=request.user, accion=f"Actualizó el folio PAC del reporte {tipo} con ID {pk}")
         return redirect('lista_reportes', tipo_reporte=tipo)
 
     return render(request, 'partials/modal_folio_pac.html', {
@@ -265,6 +266,38 @@ def editar_folio_pac(request, tipo, pk):
         'tipo': tipo,
         'grupo': config['grupo'],
     })
+
+def eliminar_reporte(request, tipo_reporte, pk):
+    config = CONFIG_REPORTES.get(tipo_reporte)
+    if not config:
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("home")
+
+    Modelo = config["modelo"]
+    reporte = get_object_or_404(Modelo, id=pk)
+
+    if request.method == "POST":
+        reporte.delete()
+        messages.success(request, "Reporte eliminado correctamente")
+        LogSistema.objects.create(usuario=request.user, accion=f"Eliminó el reporte {tipo_reporte} con ID {pk}")
+        return redirect("lista_reportes", tipo_reporte=tipo_reporte)
+
+def cambiar_estatus(request, tipo_reporte, pk):
+    config = CONFIG_REPORTES.get(tipo_reporte)
+    if not config:
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("home")
+
+    Modelo = config["modelo"]
+    reporte = get_object_or_404(Modelo, pk=pk)
+
+    # Cambiar estatus
+    reporte.estatus = "1" if reporte.estatus == "0" else "0"
+    reporte.save()
+
+    messages.success(request, "Estatus actualizado.")
+    LogSistema.objects.create(usuario=request.user, accion=f"Cambió estatus del reporte {tipo_reporte} con ID {pk} a {reporte.estatus}")
+    return redirect("lista_reportes", tipo_reporte=tipo_reporte)
 
 
 # ===================== Edición de reportes =====================
@@ -309,7 +342,7 @@ def editar_reporte(request, tipo_reporte, pk):
 
             reporte.save()
             messages.success(request, "Reporte actualizado correctamente")
-
+            LogSistema.objects.create(usuario=request.user, accion=f"Actualizó el reporte {tipo_reporte} con ID {pk}")
             return redirect("lista_reportes", tipo_reporte=tipo_reporte)
         else:
             print(form.errors)

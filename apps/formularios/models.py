@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
+ESTATUS = [
+    ('0', 'Verde'),
+    ('1', 'Rojo')
+]
 
 class ReportesBase(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -95,7 +98,7 @@ class ReporteCuadrilla(ReportesBase):
     operativo_especial = models.BooleanField(default=False)
     operativo_comentarios = models.CharField(max_length=140, blank=True)
 
-
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
     def __str__(self):
         return f"Reporte {self.numero_reporte} - {self.dia}"
 
@@ -143,6 +146,8 @@ class ReporteChamizal(ReportesBase):
     material_utilizado = models.TextField()
     vehiculos_utilizados = models.TextField()
 
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
     def __str__(self):
         return f"Reporte Chamizal"
 
@@ -172,6 +177,8 @@ class ReporteCultura(ReportesBase):
     responsable = models.CharField(max_length=100, blank=True)
     nombre_ciudadano = models.CharField(max_length=100, blank=True)
 
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 class ReporteFuentes(ReportesBase):
     folio_pac = models.IntegerField()
 
@@ -193,6 +200,9 @@ class ReporteFuentes(ReportesBase):
     calle1 = models.CharField(max_length=100)
     calle2 = models.CharField(max_length=100)
     observaciones = models.TextField()
+
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 
 class ReporteFugas(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
@@ -236,6 +246,9 @@ class ReporteFugas(ReportesBase):
     equipo_utilizado = models.TextField()
     material_utilizado = models.TextField()
     vehiculos_utilizados = models.TextField()
+
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 
 class ReportePintura(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
@@ -290,6 +303,8 @@ class ReportePintura(ReportesBase):
     material_utilizado = models.TextField()
     vehiculos_utilizados = models.TextField()
 
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 
 class ReporteRiegoChamizal(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
@@ -309,6 +324,9 @@ class ReporteRiegoChamizal(ReportesBase):
 
     ubicacion_area = models.CharField(max_length=200)
     observaciones = models.TextField()
+
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 
 class ReporteRiegoPipas(ReportesBase):
     folio_pac = models.IntegerField()
@@ -331,6 +349,9 @@ class ReporteRiegoPipas(ReportesBase):
     agua_empleada_litros = models.IntegerField()
 
     observaciones = models.TextField()
+
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
+
 
 class ReporteSoldadura(ReportesBase):
     folio_pac = models.IntegerField(blank=True, null=True)
@@ -380,3 +401,5 @@ class ReporteSoldadura(ReportesBase):
     equipo_utilizado = models.TextField()
     material_utilizado = models.TextField()
     vehiculos_utilizados = models.TextField()
+
+    estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')

@@ -30,6 +30,26 @@ COORDINADORES = [
 ]
 
 
+# === Auxiliares === #
+class SupervisorChoiceField(forms.ChoiceField):
+    def __init__(self, **kwargs):
+        supervisors = User.objects.filter(
+            groups__name="Supervisor",
+            is_superuser=False
+        )
+
+        choices = [("", "----------")] + [
+            (
+                f"{u.first_name} {u.last_name}".strip(),
+                f"{u.first_name} {u.last_name}".strip()
+            )
+            for u in supervisors
+        ]
+
+        kwargs.setdefault("choices", choices)
+        kwargs.setdefault("required", False)
+
+        super().__init__(**kwargs)
 
 # Estilo de formularios con Bootstrap
 class FormControlMixin:
@@ -43,10 +63,11 @@ class FormControlMixin:
 
 class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
-        exclude = ['creado_por']
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -66,7 +87,6 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -106,9 +126,12 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
 
 class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
+
     class Meta:
         model = ReporteChamizal
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -128,7 +151,6 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -168,6 +190,7 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
     class Meta:
         model = ReporteCultura
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -191,10 +214,12 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
 
 class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteFuentes
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -212,7 +237,6 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
 
             # Selected
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
-            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
@@ -244,10 +268,12 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
 
 class ReporteFugasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteFugas
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -267,7 +293,6 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),        
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -304,10 +329,12 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
 
 class ReportePinturasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReportePintura
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -327,7 +354,6 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -377,6 +403,7 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
     class Meta:
         model = ReporteRiegoChamizal
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -404,6 +431,7 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
     class Meta:
         model = ReporteRiegoPipas
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -429,10 +457,12 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
 
 class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteSoldadura
         fields = "__all__"
+        exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
 
@@ -452,7 +482,6 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,

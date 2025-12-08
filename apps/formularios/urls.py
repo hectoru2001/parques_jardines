@@ -10,7 +10,8 @@ urlpatterns = [
     path('reportes/modal/<str:tipo_reporte>/<int:pk>/', views.modal_reporte, name='modal_reporte_edit'),
     path("reportes/folio_pac/<str:tipo>/<int:pk>/", views.editar_folio_pac, name="editar_folio_pac"),
     path("formulario/<str:tipo_reporte>/editar/<int:pk>/", views.editar_reporte, name="editar_reporte"),
-
+    path('reportes/eliminar/<str:tipo_reporte>/<int:pk>/', views.eliminar_reporte, name='eliminar_reporte'),
+    path('<str:tipo_reporte>/<int:pk>/cambiar-estatus/', views.cambiar_estatus, name='cambiar_estatus'),
 
     #Cuadrillas
     path('reporte/pdf/<int:pk>/', views.generar_pdf_cuadrilla, name='reporte_pdf'),
