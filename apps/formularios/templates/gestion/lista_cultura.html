@@ -43,8 +43,13 @@
                     <tbody>
                         {% for reporte in reportes %}
                         <tr class="">
-                            <td>{{ reporte.id }}</td>
                             <td>
+                                {% if reporte.foto_antes and reporte.foto_despues %}
+                                    {{ reporte.id }}
+                                {% else %}
+                                    <span class="badge bg-danger">Sin Fotos</span>
+                                {% endif %}
+                            </td>                            <td>
                                 {% if reporte.folio_pac %}
                                     {{ reporte.folio_pac }}
                                 {% else %}

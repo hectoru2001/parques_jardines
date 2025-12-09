@@ -37,14 +37,35 @@
                             <th >Trabajo Realizado</th>
                             <th> Creado Por </th>
                             <th >Estatus</th>
+                            <th> Tipo</th>
                             <th  class="text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reporte in reportes %}
                         <tr class="">
-                            <td>{{ reporte.id }}</td>
+                            {% if reporte.trabajo_diario %}
+                                <td class="bg-info-subtle text-info">
+                                    <span class="badge text-bg-info">Diario</span>
+                                </td>
+
+                            {% elif reporte.trabajo_ciudadania %}
+                                <td class="bg-success-subtle text-success">
+                                    <span class="badge text-bg-success">Ciudadanía</span>
+                                </td>
+
+                            {% elif reporte.operativo_especial %}
+                                <td class="bg-warning-subtle text-warning">
+                                    <span class="badge text-bg-warning">Especial</span>
+                                </td>
+                            {% endif %}
                             <td>
+                                {% if reporte.foto_antes and reporte.foto_despues %}
+                                    {{ reporte.id }}
+                                {% else %}
+                                    <span class="badge bg-danger">Sin Fotos</span>
+                                {% endif %}
+                            </td>                            <td>
                                 {% if reporte.folio_pac %}
                                     {{ reporte.folio_pac }}
                                 {% else %}

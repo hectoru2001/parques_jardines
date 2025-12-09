@@ -448,7 +448,6 @@ def editar_reporte(request, tipo_reporte, pk):
         "tipo_reporte": tipo_reporte,
     })
 
-
 # Convertir booleanos
 def draw_checkbox(page, x, y, checked=False):
     if checked:
