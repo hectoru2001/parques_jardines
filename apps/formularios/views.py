@@ -126,55 +126,90 @@ def menu_botones(request):
 def generar_formato(request, tipo_reporte):
     if tipo_reporte not in CONFIG_REPORTES:
         raise Http404("Tipo de reporte no válido")
-    
-    config = CONFIG_REPORTES[tipo_reporte]
 
-    siguiente_id = None
-    if config["modelo"]:
-        last = config["modelo"].objects.aggregate(Max('id'))['id__max']
-        siguiente_id = 1 if not last else last + 1
+    config = CONFIG_REPORTES[tipo_reporte]
+    Modelo = config["modelo"]
+
+    # Obtener siguiente ID
+    last = Modelo.objects.aggregate(Max("id"))["id__max"]
+    siguiente_id = (last or 0) + 1
 
     if request.method == "POST":
-        form = config["form_class"](request.POST, request.FILES)
+
+        # ==========================================================
+        # PROCESAR IMÁGENES
+        # ==========================================================
+        new_files = request.FILES.copy()
+
+        for field_name, file in request.FILES.items():
+            try:
+                img = Image.open(file)
+
+                # Asegurar modo adecuado
+                if img.mode not in ("RGB", "L"):
+                    img = img.convert("RGB")
+
+                # Reducción de tamaño máximo permitido
+                img.thumbnail((1600, 1600), Image.LANCZOS)
+
+                # Guardar comprimido
+                buffer = BytesIO()
+                img.save(buffer, format="JPEG", optimize=True, quality=70)
+
+                new_files[field_name] = ContentFile(
+                    buffer.getvalue(),
+                    name=f"{field_name}.jpg"
+                )
+
+            except Exception as e:
+                # Log real para auditoría
+                LogSistema.objects.create(
+                    usuario=request.user,
+                    accion=f"⚠ Error procesando imagen '{field_name}': {e}"
+                )
+
+                # Imagen fallback para no romper el form
+                fallback = Image.new("RGB", (20, 20), (255, 255, 255))
+                fb_buffer = BytesIO()
+                fallback.save(fb_buffer, format="JPEG", quality=60)
+
+                new_files[field_name] = ContentFile(
+                    fb_buffer.getvalue(),
+                    name=f"{field_name}_fallback.jpg"
+                )
+
+        form = config["form_class"](request.POST, new_files)
+
         if form.is_valid():
             reporte = form.save(commit=False)
             reporte.creado_por = request.user
-
-            for field_name, field in form.fields.items():
-                if field_name in request.FILES:
-                    uploaded_file = request.FILES[field_name]
-
-                    try:
-                        img = Image.open(uploaded_file)
-                        if img.mode in ("RGBA", "P"):
-                            img = img.convert("RGB")
-
-                        img_io = BytesIO()
-                        img.save(img_io, format="JPEG", optimize=True, quality=70)
-                        compressed = ContentFile(img_io.getvalue(), name=uploaded_file.name)
-
-                        setattr(reporte, field_name, compressed)
-                    except Exception as e:
-                        print(f"⚠️ No se pudo comprimir {field_name}: {e}")
-
             reporte.save()
+
+            LogSistema.objects.create(
+                usuario=request.user,
+                accion=f"Generó un nuevo reporte {tipo_reporte} con ID {reporte.id}"
+            )
+
             messages.success(request, "Reporte generado correctamente")
-            LogSistema.objects.create(usuario=request.user, accion=f"Generó un nuevo reporte {tipo_reporte} con ID {reporte.id}")
-            return redirect('lista_reportes', tipo_reporte=tipo_reporte )
+            return redirect("lista_reportes", tipo_reporte=tipo_reporte)
+
         else:
-            print(form.errors)
+            print("❌ Errores:", form.errors)
+
     else:
         form = config["form_class"]()
-        if siguiente_id and hasattr(form.fields, 'numero_reporte'):
-            form.fields['numero_reporte'].initial = siguiente_id
+        if "numero_reporte" in form.fields:
+            form.fields["numero_reporte"].initial = siguiente_id
 
-    context = {
-        "form": form,
-        "siguiente_id": siguiente_id,
-        "tipo_reporte": tipo_reporte
-    }
-    
-    return render(request, config["template"], context)
+    return render(
+        request,
+        config["template"],
+        {
+            "form": form,
+            "siguiente_id": siguiente_id,
+            "tipo_reporte": tipo_reporte
+        }
+    )
 
 # ===================== Cargar listado de reportes =====================
 @login_required
@@ -191,17 +226,38 @@ def lista_reportes(request, tipo_reporte):
     fecha_inicio = request.GET.get("fecha_inicio")
     fecha_fin = request.GET.get("fecha_fin")
 
+    # NUEVO: parámetros de ordenamiento
+    ordenar_por = request.GET.get("ordenar_por", "fecha")
+    direccion = request.GET.get("direccion", "desc")
+
     reportes = Modelo.objects.all()
 
-    # Filtrado según el filtro seleccionado
+    # ---- FILTROS ----
     if filtro == "id" and valor.isdigit():
         reportes = reportes.filter(id=int(valor))
+
     elif filtro == "folio" and valor:
         reportes = reportes.filter(folio_pac__icontains=valor)
+
     elif filtro == "fecha" and fecha_inicio and fecha_fin:
         reportes = reportes.filter(fecha__range=[fecha_inicio, fecha_fin])
 
-    reportes = reportes.order_by("-id").distinct()
+    # ---- ORDENAMIENTO ----
+
+    # Mapa para traducir nombres usados en el select → campos reales del modelo
+    campos_orden = {
+        "fecha": "fecha",
+        "num_pac": "folio_pac",
+        "numero_reporte": "id",
+    }
+
+    campo = campos_orden.get(ordenar_por, "fecha")
+
+    # Dirección
+    if direccion == "desc":
+        campo = "-" + campo
+
+    reportes = reportes.order_by(campo).distinct()
 
     context = {
         "reportes": reportes,
@@ -209,6 +265,10 @@ def lista_reportes(request, tipo_reporte):
         "filtro": filtro,
         "valor": valor,
         "grupo": config["grupo"],
+
+        # Enviamos valores para mantener el estado del formulario
+        "ordenar_por": ordenar_por,
+        "direccion": direccion,
     }
 
     return render(request, config["template"], context)
@@ -299,7 +359,6 @@ def cambiar_estatus(request, tipo_reporte, pk):
     LogSistema.objects.create(usuario=request.user, accion=f"Cambió estatus del reporte {tipo_reporte} con ID {pk} a {reporte.estatus}")
     return redirect("lista_reportes", tipo_reporte=tipo_reporte)
 
-
 # ===================== Edición de reportes =====================
 @login_required
 @es_capturista
@@ -313,52 +372,82 @@ def editar_reporte(request, tipo_reporte, pk):
     reporte = get_object_or_404(Modelo, id=pk)
 
     if request.method == "POST":
-        form = config["form_class"](request.POST, request.FILES, instance=reporte)
+
+        # ==========================================================
+        # PROCESAR SOLO LOS ARCHIVOS NUEVOS
+        # ==========================================================
+        processed_files = {}
+
+        for field_name, file in request.FILES.items():
+            try:
+                img = Image.open(file)
+
+                if img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
+
+                max_size = (1600, 1600)
+                img.thumbnail(max_size)
+
+                img_io = BytesIO()
+                img.save(img_io, format="JPEG", optimize=True, quality=70)
+
+                processed_files[field_name] = ContentFile(
+                    img_io.getvalue(),
+                    name=f"{field_name}.jpg"
+                )
+
+            except Exception as e:
+                print(f"⚠ Error procesando {field_name}: {e}")
+
+                # fallback seguro
+                fallback = Image.new("RGB", (20, 20), (255, 255, 255))
+                fb_io = BytesIO()
+                fallback.save(fb_io, format="JPEG", quality=60)
+
+                processed_files[field_name] = ContentFile(
+                    fb_io.getvalue(),
+                    name=f"{field_name}_fallback.jpg"
+                )
+
+
+        post_data = request.POST.copy()
+        files_data = request.FILES.copy()
+
+        # reemplazar solo los campos que suben imagen
+        for name, file in processed_files.items():
+            files_data[name] = file
+
+        form = config["form_class"](post_data, files_data, instance=reporte)
+
+        # ==========================================================
+
         if form.is_valid():
-            reporte = form.save(commit=False)
+            updated = form.save(commit=False)
 
-            if hasattr(reporte, "creado_por") and not reporte.creado_por:
-                reporte.creado_por = request.user
+            if hasattr(updated, "creado_por") and not updated.creado_por:
+                updated.creado_por = request.user
 
-            for field_name, field in form.fields.items():
-                if field_name in request.FILES:
-                    uploaded_file = request.FILES[field_name]
-                    try:
-                        img = Image.open(uploaded_file)
-                        if img.mode in ("RGBA", "P"):
-                            img = img.convert("RGB")
+            updated.save()
 
-                        if uploaded_file.size > 800 * 1024:
-                            img_io = BytesIO()
-                            img.save(img_io, format="JPEG", optimize=True, quality=70)
-                            compressed = ContentFile(img_io.getvalue(), name=uploaded_file.name)
-                            setattr(reporte, field_name, compressed)
-                            print(f"Imagen {field_name} comprimida de {uploaded_file.size/1024:.1f} KB "
-                                  f"a {len(img_io.getvalue())/1024:.1f} KB")
-                        else:
-                            print(f"Imagen {field_name} omitida (solo {uploaded_file.size/1024:.1f} KB)")
-                    except Exception as e:
-                        print(f"⚠️ No se pudo comprimir {field_name}: {e}")
-
-            reporte.save()
             messages.success(request, "Reporte actualizado correctamente")
-            LogSistema.objects.create(usuario=request.user, accion=f"Actualizó el reporte {tipo_reporte} con ID {pk}")
+            LogSistema.objects.create(usuario=request.user, accion=f"Actualizó reporte {pk}")
+
             return redirect("lista_reportes", tipo_reporte=tipo_reporte)
+
         else:
             print(form.errors)
+
     else:
         form = config["form_class"](instance=reporte)
-        print(config["template"])
 
-    context = {
+    return render(request, config["template"], {
         "form": form,
         "reporte": reporte,
         "numero_reporte": pk,
         "grupo": config["grupo"],
         "tipo_reporte": tipo_reporte,
-    }
+    })
 
-    return render(request, config["template"], context)
 
 # Convertir booleanos
 def draw_checkbox(page, x, y, checked=False):

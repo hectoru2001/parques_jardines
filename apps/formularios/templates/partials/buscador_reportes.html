@@ -1,23 +1,57 @@
 <form method="get" action="{% url 'lista_reportes' tipo_reporte %}">
-    <div class="input-group">
+    
+    <div class="d-flex flex-nowrap align-items-center gap-2 mb-3">
 
-        <!-- Selector de filtro -->
-        <select class="form-select" id="filtro-select" name="filtro" onchange="toggleFecha()">
+        <!-- Filtro principal -->
+        <select class="form-select" style="width: 150px;"
+                id="filtro-select" name="filtro" onchange="toggleFecha()">
             <option value="id" {% if filtro == 'id' %}selected{% endif %}>ID de reporte</option>
             <option value="folio" {% if filtro == 'folio' %}selected{% endif %}>Folio PAC</option>
             <option value="fecha" {% if filtro == 'fecha' %}selected{% endif %}>Fecha</option>
         </select>
 
-        <!-- Input de búsqueda general -->
-        <input type="text" class="form-control" id="query-input" name="query" placeholder="Ingrese su búsqueda"
+        <!-- Campo de búsqueda (ocupa el espacio sobrante) -->
+        <input type="text"
+            class="form-control flex-grow-1"
+            id="query-input"
+            name="query"
+            placeholder="Ingrese su búsqueda"
             value="{{ valor }}">
 
-        <!-- Inputs de fecha (inicialmente ocultos) -->
-        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-inicio"
-            name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
-        <input type="date" class="form-control {% if filtro != 'fecha' %}d-none{% endif %}" id="fecha-fin"
-            name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+        <!-- Fechas -->
+        <input type="date"
+            class="form-control {% if filtro != 'fecha' %}d-none{% endif %}"
+            id="fecha-inicio"
+            name="fecha_inicio"
+            class="flex-grow-1"
+            value="{{ request.GET.fecha_inicio }}">
 
-        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        <input type="date"
+            class="form-control {% if filtro != 'fecha' %}d-none{% endif %}"
+            id="fecha-fin"
+            name="fecha_fin"
+            class="flex-grow-1"
+            value="{{ request.GET.fecha_fin }}">
+
+        <!-- Label -->
+        <label class="fw-bold ms-2">Ordenar por:</label>
+
+        <!-- Orden -->
+        <select class="form-select" name="ordenar_por" style="width: 160px;">
+            <option value="fecha" {% if ordenar_por == 'fecha' %}selected{% endif %}>Fecha</option>
+            <option value="num_pac" {% if ordenar_por == 'num_pac' %}selected{% endif %}>Número PAC</option>
+            <option value="numero_reporte" {% if ordenar_por == 'numero_reporte' %}selected{% endif %}>Número de reporte</option>
+        </select>
+
+        <!-- Dirección -->
+        <select class="form-select" name="direccion" style="width: 140px;">
+            <option value="asc" {% if direccion == 'asc' %}selected{% endif %}>Ascendente</option>
+            <option value="desc" {% if direccion == 'desc' %}selected{% endif %}>Descendente</option>
+        </select>
+
+        <!-- Botón -->
+        <button class="btn btn-outline-secondary" type="submit">Aplicar</button>
+
     </div>
+
 </form>
