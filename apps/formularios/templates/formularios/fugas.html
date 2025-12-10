@@ -213,7 +213,7 @@
                 <!-- Foto Antes -->
                 <div class="col-md-6 mb-3">
                     <label for="id_foto_antes" class="form-label">Foto Antes</label>
-                    <input type="file" name="foto_antes" id="id_foto_antes" class="form-control" accept="image/*" required>
+                    <input type="file" name="foto_antes" id="id_foto_antes" class="form-control" accept="image/*" {% if not reporte.foto_antes %}required{% endif %}>
                     <div class="mt-2">
                         {% if reporte.foto_antes %}
                             <img id="preview_antes" src="{{ reporte.foto_antes.url }}" alt="Vista previa" style="max-width: 100%; height: 500px; display: block;">
@@ -226,7 +226,8 @@
                 <!-- Foto Después -->
                 <div class="col-md-6 mb-3">
                     <label for="id_foto_despues" class="form-label">Foto Después</label>
-                    <input type="file" name="foto_despues" id="id_foto_despues" class="form-control" accept="image/*" required>
+                                        <input type="file" name="foto_despues" id="id_foto_despues" class="form-control" accept="image/*" {% if not reporte.foto_despues %}required{% endif %}>
+
                     <div class="mt-2">
                         {% if reporte.foto_despues %}
                             <img id="preview_despues" src="{{ reporte.foto_despues.url }}" alt="Vista previa" style="max-width: 100%; height: 500px; display: block;">

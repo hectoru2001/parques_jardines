@@ -25,8 +25,8 @@ DISTRITOS = [
 
 COORDINADORES = [
     ("", "----------"),
-    ('Julio Martínez Muruato', 'Julio Martínez Muruato'),
-    ('Jose Luis Barraza', 'Jose Luis Barraza'),
+    ('Julio Martínez Muruaño', 'Julio Martínez Muruaño'),
+    ('Jose Luis Barraza Ocaña', 'Jose Luis Barraza Ocaña'),
 ]
 
 
@@ -63,7 +63,6 @@ class FormControlMixin:
 
 class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
@@ -87,6 +86,7 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -126,7 +126,6 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
 
 class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteChamizal
@@ -151,6 +150,7 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -214,7 +214,6 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
 
 class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteFuentes
@@ -238,6 +237,7 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             # Selected
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -268,7 +268,6 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
 
 class ReporteFugasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado_cuadrilla = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteFugas
@@ -293,6 +292,7 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -329,7 +329,6 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
 
 class ReportePinturasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReportePintura
@@ -354,6 +353,7 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -457,7 +457,6 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
 
 class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
-    encargado = SupervisorChoiceField(widget=forms.Select(attrs={"class": "form-select form-control"}), label="Encargado de Cuadrilla")
 
     class Meta:
         model = ReporteSoldadura
@@ -482,6 +481,7 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
+            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,

@@ -413,6 +413,9 @@ def editar_reporte(request, tipo_reporte, pk):
         post_data = request.POST.copy()
         files_data = request.FILES.copy()
 
+        if "folio_pac" not in post_data:
+            post_data["folio_pac"] = reporte.folio_pac or ""
+            
         # reemplazar solo los campos que suben imagen
         for name, file in processed_files.items():
             files_data[name] = file
