@@ -145,14 +145,11 @@ def generar_formato(request, tipo_reporte):
             try:
                 img = Image.open(file)
 
-                # Asegurar modo adecuado
                 if img.mode not in ("RGB", "L"):
                     img = img.convert("RGB")
 
-                # Reducción de tamaño máximo permitido
                 img.thumbnail((1600, 1600), Image.LANCZOS)
 
-                # Guardar comprimido
                 buffer = BytesIO()
                 img.save(buffer, format="JPEG", optimize=True, quality=70)
 
@@ -162,13 +159,11 @@ def generar_formato(request, tipo_reporte):
                 )
 
             except Exception as e:
-                # Log real para auditoría
                 LogSistema.objects.create(
                     usuario=request.user,
                     accion=f"⚠ Error procesando imagen '{field_name}': {e}"
                 )
 
-                # Imagen fallback para no romper el form
                 fallback = Image.new("RGB", (20, 20), (255, 255, 255))
                 fb_buffer = BytesIO()
                 fallback.save(fb_buffer, format="JPEG", quality=60)
@@ -207,9 +202,12 @@ def generar_formato(request, tipo_reporte):
         {
             "form": form,
             "siguiente_id": siguiente_id,
-            "tipo_reporte": tipo_reporte
+            "tipo_reporte": tipo_reporte,
+            "modo": "creando",
+            "supervisor": request.user.username in ["ccalzadilla", "jtellez", "pruebas"],
         }
     )
+
 
 # ===================== Cargar listado de reportes =====================
 @login_required

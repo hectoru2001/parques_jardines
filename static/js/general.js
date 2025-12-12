@@ -62,6 +62,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputsNumericos = document.querySelectorAll('input[type="number"]');
     const checkBoxes = document.getElementById('list-checkboxes');
 
+    const esSupervisor = window.ES_SUPERVISOR === "true";
+    const inputFecha = document.getElementById("id_fecha");
+
+    if (!inputFecha) return;
+
+    const hoy = new Date().toISOString().split("T")[0];
+
+    if (!esSupervisor) {
+        inputFecha.setAttribute("min", hoy);
+
+        inputFecha.addEventListener("change", function () {
+            if (this.value < hoy) {
+                showModal("La fecha no puede ser anterior a hoy.");
+                this.value = hoy;
+            }
+        });
+    }
+
+
     toggleFecha();
     seleccionarDiaAuto();
 
