@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "partials/messages.html" %}
 <div class="reports-dashboard">
     <div>
         <h1 class="title-primary text-center">Generador de Reportes</h1>
@@ -48,7 +49,7 @@
         </div>
         {% endif %}
 
-        <!-- Reporte Cultura -->
+        <!-- Reporte Cultura 
         {% if user|tiene_acceso_reporte:"cultura" %}
         <div class="report-card" data-category="cultura">
             <div class="card-preview">
@@ -64,6 +65,7 @@
             </div>
         </div>
         {% endif %}
+        -->
 
         <!-- Reporte Fuentes -->
         {% if user|tiene_acceso_reporte:"fuentes" %}
@@ -133,7 +135,7 @@
         </div>
         {% endif %}
 
-        <!-- Riego Pipa -->
+        <!-- Riego Pipa
         {% if user|tiene_acceso_reporte:"pipas" %}
         <div class="report-card" data-category="riego">
             <div class="card-preview">
@@ -149,6 +151,7 @@
             </div>
         </div>
         {% endif %}
+        -->
 
         <!-- Soldadura -->
         {% if user|tiene_acceso_reporte:"soldadura" %}

@@ -38,7 +38,7 @@ function toggleFecha() {
     }
 }
 
-function seleccionarDiaAuto(){
+function seleccionarDiaAuto() {
     const inputFecha = document.getElementById('id_fecha');
     const selectDia = document.getElementById('id_dia');
     const valorFecha = inputFecha.value;
@@ -48,13 +48,14 @@ function seleccionarDiaAuto(){
         return;
     }
 
-    const fecha = new Date(valorFecha + "T00:00:00");
-    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-    const nombreDia = dias[fecha.getDay()];
+    // Crear fecha en UTC
+    const [year, month, day] = valorFecha.split('-').map(Number);
+    const fechaUTC = new Date(Date.UTC(year, month - 1, day));
 
-    // Asignar el valor correspondiente en el <select>
-    selectDia.value = nombreDia;
+    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    selectDia.value = dias[fechaUTC.getUTCDay()];
 }
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const contenedor = document.querySelector('.logica-seleccion');

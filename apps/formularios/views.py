@@ -40,13 +40,13 @@ CONFIG_REPORTES = {
             "template": "formularios/chamizal.html",
             "redirect": "lista_chamizal"
         },
-        "cultura": {
-            "grupo": "Reporte Cultura",
-            "modelo": ReporteCultura,
-            "form_class": ReporteCulturaForm,
-            "template": "formularios/cultura.html",
-            "redirect": "lista_cultura"
-        },
+        # # #"cultura": {
+        # #     "grupo": "Reporte Cultura",
+        # #     "modelo": ReporteCultura,
+        # #     "form_class": ReporteCulturaForm,
+        # #     "template": "formularios/cultura.html",
+        # #     "redirect": "lista_cultura"
+        # },
         "fuentes": {
             "grupo": "Reporte Fuentes",
             "modelo": ReporteFuentes,
@@ -75,13 +75,13 @@ CONFIG_REPORTES = {
             "template": "formularios/riego_chamizal.html",
             "redirect": "lista_riego_chamizal"
         },
-        "riego_pipas": {
-            "grupo": "Riego Pipas",
-            "modelo": ReporteRiegoPipas,
-            "form_class": ReporteRiegoPipasForm,
-            "template": "formularios/riego_pipa.html",
-            "redirect": "lista_riego_pipas"
-        },
+        # "riego_pipas": {
+        #     "grupo": "Riego Pipas",
+        #     "modelo": ReporteRiegoPipas,
+        #     "form_class": ReporteRiegoPipasForm,
+        #     "template": "formularios/riego_pipa.html",
+        #     "redirect": "lista_riego_pipas"
+        # },
         "soldadura": {
             "grupo": "Soldadura",
             "modelo": ReporteSoldadura, 
@@ -94,14 +94,16 @@ CONFIG_REPORTES = {
 CONFIG_LISTAS = {
         "cuadrilla": {"grupo": "Reporte Cuadrilla", "modelo": ReporteCuadrilla, "template": "gestion/lista_cuadrillas.html"},
         "chamizal": {"grupo": "Reporte Chamizal", "modelo": ReporteChamizal, "template": "gestion/lista_chamizal.html"},
-        "cultura": {"grupo": "Reporte Cultura", "modelo": ReporteCultura, "template": "gestion/lista_cultura.html"},
+        #"cultura": {"grupo": "Reporte Cultura", "modelo": ReporteCultura, "template": "gestion/lista_cultura.html"},
         "fuentes": {"grupo": "Reporte Fuentes", "modelo": ReporteFuentes, "template": "gestion/lista_fuentes.html"},
         "fugas": {"grupo": "Reporte Fugas", "modelo": ReporteFugas, "template": "gestion/lista_fugas.html"},
         "pinturas": {"grupo": "Reporte Pintura", "modelo": ReportePintura, "template": "gestion/lista_pinturas.html"},
         "riego_chamizal": {"grupo": "Riego Chamizal", "modelo": ReporteRiegoChamizal, "template": "gestion/lista_riego_chamizal.html"},
-        "riego_pipas": {"grupo": "Riego Pipas", "modelo": ReporteRiegoPipas, "template": "gestion/lista_riego_pipa.html"},
+        #"riego_pipas": {"grupo": "Riego Pipas", "modelo": ReporteRiegoPipas, "template": "gestion/lista_riego_pipa.html"},
         "soldadura": {"grupo": "Soldadura", "modelo": ReporteSoldadura, "template": "gestion/lista_soldadura.html"},
     }
+
+administradores = ['ccalzadilla', 'jtellez', 'pruebas']
 
 @login_required
 def plantilla(request):
@@ -125,8 +127,8 @@ def menu_botones(request):
 @login_required
 def generar_formato(request, tipo_reporte):
     if tipo_reporte not in CONFIG_REPORTES:
-        raise Http404("Tipo de reporte no válido")
-
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("main")
     config = CONFIG_REPORTES[tipo_reporte]
     Modelo = config["modelo"]
 
@@ -204,18 +206,17 @@ def generar_formato(request, tipo_reporte):
             "siguiente_id": siguiente_id,
             "tipo_reporte": tipo_reporte,
             "modo": "creando",
-            "supervisor": request.user.username in ["ccalzadilla", "jtellez", "pruebas"],
+            "supervisor": request.user.username in administradores,
         }
     )
-
 
 # ===================== Cargar listado de reportes =====================
 @login_required
 def lista_reportes(request, tipo_reporte):
 
     if tipo_reporte not in CONFIG_LISTAS:
-        raise Http404("Tipo de reporte no válido")
-
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("main")    
     config = CONFIG_LISTAS[tipo_reporte]
     Modelo = config["modelo"]
 
@@ -305,8 +306,8 @@ def modal_reporte(request, tipo_reporte, pk):
 def editar_folio_pac(request, tipo, pk):
     config = CONFIG_REPORTES.get(tipo)
     if not config:
-        return JsonResponse({'error': 'Tipo de reporte no válido'}, status=400)
-
+        return render(request, "no_disponible.html", status=404)
+    
     Modelo = config['modelo']
     reporte = get_object_or_404(Modelo, pk=pk)
 
@@ -329,7 +330,7 @@ def eliminar_reporte(request, tipo_reporte, pk):
     config = CONFIG_REPORTES.get(tipo_reporte)
     if not config:
         messages.error(request, "Tipo de reporte no válido")
-        return redirect("home")
+        return redirect("main")
 
     Modelo = config["modelo"]
     reporte = get_object_or_404(Modelo, id=pk)
@@ -344,7 +345,7 @@ def cambiar_estatus(request, tipo_reporte, pk):
     config = CONFIG_REPORTES.get(tipo_reporte)
     if not config:
         messages.error(request, "Tipo de reporte no válido")
-        return redirect("home")
+        return redirect("main")
 
     Modelo = config["modelo"]
     reporte = get_object_or_404(Modelo, pk=pk)
@@ -364,7 +365,7 @@ def editar_reporte(request, tipo_reporte, pk):
     config = CONFIG_REPORTES.get(tipo_reporte)
     if not config:
         messages.error(request, "Tipo de reporte no válido")
-        return redirect("home")
+        return redirect("main")
 
     Modelo = config["modelo"]
     reporte = get_object_or_404(Modelo, id=pk)
@@ -447,6 +448,8 @@ def editar_reporte(request, tipo_reporte, pk):
         "numero_reporte": pk,
         "grupo": config["grupo"],
         "tipo_reporte": tipo_reporte,
+        "supervisor": request.user.username in administradores,
+
     })
 
 # Convertir booleanos

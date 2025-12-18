@@ -182,6 +182,10 @@ class ReporteCultura(ReportesBase):
 class ReporteFuentes(ReportesBase):
     folio_pac = models.IntegerField()
 
+    trabajo_diario = models.BooleanField(default=False)
+    trabajo_ciudadania = models.BooleanField(default=False)
+    operativo_especial = models.BooleanField(default=False)
+    operativo_comentarios = models.CharField(max_length=140, blank=True)
 
     fecha = models.DateField()
     dia = models.CharField(max_length=20)
