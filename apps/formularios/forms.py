@@ -1,6 +1,7 @@
 from django import forms
 from .models import *
 
+administradores = ['ccalzadilla', 'jtellez', 'pruebas']
 
 DIAS_SEMANA = [
     ("", "----------"),
@@ -28,7 +29,6 @@ COORDINADORES = [
     ('Julio Martínez Muruaño', 'Julio Martínez Muruaño'),
     ('Jose Luis Barraza Ocaña', 'Jose Luis Barraza Ocaña'),
 ]
-
 
 # === Auxiliares === #
 class SupervisorChoiceField(forms.ChoiceField):
@@ -63,6 +63,8 @@ class FormControlMixin:
 
 class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
+
     class Meta:
         model = ReporteCuadrilla
         fields = "__all__"
@@ -86,7 +88,6 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -122,10 +123,16 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
             "vehiculos_utilizados": "Vehículos utilizados",
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['encargado_cuadrilla'].choices = choices_usuarios_por_grupo(
+            "cuadrilla"
+        )
 
 class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReporteChamizal
@@ -150,7 +157,6 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -183,7 +189,12 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
             "ubicacion_area" : "Ubicación o Área",
             "vehiculos_utilizados": "Vehículos utilizados",
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['encargado_cuadrilla'].choices = choices_usuarios_por_grupo(
+            "chamizal"
+        )
 
 class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
@@ -210,10 +221,9 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
             "calle4": "Calle 4",
         }
 
-
-
 class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReporteFuentes
@@ -237,7 +247,6 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             # Selected
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -264,10 +273,16 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
             "calle1" : "Calle 1",
             "calle2" : "Calle 2",
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['encargado'].choices = choices_usuarios_por_grupo(
+            "fuentes"
+        )
 
 class ReporteFugasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado_cuadrilla = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReporteFugas
@@ -292,7 +307,6 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
             "distrito": forms.Select(choices=DISTRITOS, attrs={"class": "form-select form-control"}),
             "coordinador": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
-            "encargado_cuadrilla": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"}),
 
             # Radio Select
             "pintura_juegos": forms.RadioSelect,
@@ -325,10 +339,16 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
 
             "vehiculos_utilizados": "Vehículos utilizados",
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['encargado_cuadrilla'].choices = choices_usuarios_por_grupo(
+            "fugas"
+        )
 
 class ReportePinturasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReportePintura
@@ -395,10 +415,16 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
 
             "vehiculos_utilizados": "Vehículos utilizados",
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['encargado'].choices = choices_usuarios_por_grupo(
+            "pintura"
+        )
 
 class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReporteRiegoChamizal
@@ -406,11 +432,7 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         exclude = ['creado_por', 'estatus']
         widgets = {
             "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
-
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
-            "encargado": forms.Select(choices=COORDINADORES, attrs={"class": "form-select form-control"})
-
-
         }
         labels = {
             "dia": "Día",
@@ -424,6 +446,12 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
 
             "ubicacion_area": "Ubicación del área trabajada",   
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['encargado'].choices = choices_usuarios_por_grupo(
+            "riego_chamizal"
+        )
 
 class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
@@ -454,9 +482,9 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
             "agua_empleada_litros": "Agua empleada (Litros)",
         }
 
-
 class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
     numero_reporte = forms.IntegerField(label="Número de Reporte", required=False, disabled=True)
+    encargado = forms.ChoiceField(choices=[], required=False, widget=forms.Select(attrs={"class": "form-select form-control"}))
 
     class Meta:
         model = ReporteSoldadura
@@ -519,3 +547,23 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
 
             "vehiculos_utilizados": "Vehículos utilizados",
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['encargado'].choices = choices_usuarios_por_grupo(
+            "soldadura"
+        )
+
+def choices_usuarios_por_grupo(nombre_grupo):
+    usuarios = User.objects.filter(
+        groups__name=nombre_grupo,
+        is_active=True
+    ).exclude(username__in=administradores).order_by('first_name', 'last_name')
+
+    return [("", "----------")] + [
+        (
+            u.get_full_name() or u.username,
+            u.get_full_name() or u.username
+        )
+        for u in usuarios
+    ]

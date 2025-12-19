@@ -784,6 +784,20 @@ def generar_pdf_fuentes(request, pk):
     # Personal que Trabajó
     page.insert_text((490, 180), str(reporte.personal_trabajo), fontsize=8, color=(0,0,1))
 
+    if reporte.trabajo_ciudadania:
+        texto = "Trabajo de la ciudadanía"
+    elif reporte.operativo_especial:
+        texto = "Operativo especial"
+    elif reporte.trabajo_diario:
+        texto = "Trabajo diario"
+    else:
+        texto = "—"
+
+    page.insert_text((384, 193), "Tipo de trabajo", fontsize=9, color=(0, 0, 0), fontname="helv", render_mode=2)
+
+    page.insert_text((470, 193), texto, fontsize=8,color=(0, 0, 0), fontname="helv")
+
+
     # Colonia
     page.insert_text((50, 235), reporte.colonia, fontsize=8, color=(0,0,1))
 
@@ -808,6 +822,15 @@ def generar_pdf_fuentes(request, pk):
     response["Content-Disposition"] = f'inline; filename="REPORTE_FUENTES_#{reporte.folio_pac}_{fecha_str}.pdf"'
     return response
 
+def obtener_tipo_trabajo(reporte):
+    if reporte.trabajo_ciudadania:
+        return "Trabajo de la ciudadanía"
+    if reporte.operativo_especial:
+        return "Operativo especial"
+    if reporte.trabajo_diario:
+        return "Trabajo diario"
+    return "—"
+
 @es_capturista
 def generar_pdf_fuentes_multiple(request, ids):
     ids = ids.split(",")
@@ -824,40 +847,30 @@ def generar_pdf_fuentes_multiple(request, ids):
             "superficie": (215, 150), "limpieza": (215, 165), "tuberia": (215, 180),
             "basura": (215, 195), "reparacion_bomba": (490, 150), "instalacion_bomba": (490, 165),
             "personal": (490, 180), "colonia": (50, 235), "calle1": (195, 235), "calle2": (365, 235),
-            "observaciones": (50, 260),
+            "observaciones": (50, 260), "tipo_trabajo_label": (384, 193), "tipo_trabajo_valor": (470, 193),
         },
         {   # Bloque 2 (segundo rectángulo)
             "dia": (405, 233), "id": (428, 303),
             "superficie": (215, 315), "limpieza": (215, 330), "tuberia": (215, 345),
             "basura": (215, 360), "reparacion_bomba": (490, 315), "instalacion_bomba": (490, 330),
             "personal": (490, 345), "colonia": (50, 403), "calle1": (195, 403), "calle2": (365, 403),
-            "observaciones": (50, 433),
+            "observaciones": (50, 433), "tipo_trabajo_label": (384, 358), "tipo_trabajo_valor": (470, 358),
         },
         {   # Bloque 3 (tercer rectángulo) – bajado un poco más
-            "dia": (405, 403 + 166 + 3),  
-            "id": (428, 303 + 166 + 3), 
-            "superficie": (215, 315 + 166 + 3), 
-            "limpieza": (215, 330 + 166 + 3),
-            "tuberia": (215, 345 + 166 + 3),   
-            "basura": (215, 360 + 166 + 3),     
-            "reparacion_bomba": (490, 315 + 166 + 3), 
-            "instalacion_bomba": (490, 330 + 166 + 3), 
-            "personal": (490, 345 + 166 + 3),   
-            "colonia": (50, 403 + 166 + 3),     
-            "calle1": (195, 403 + 166 + 3),    
-            "calle2": (365, 403 + 166 + 3),  
-            "observaciones": (50, 433 + 166 + 3), 
+            "dia": (405, 403 + 166 + 3), "id": (428, 303 + 166 + 3), "superficie": (215, 315 + 166 + 3), 
+            "limpieza": (215, 330 + 166 + 3), "tuberia": (215, 345 + 166 + 3), "basura": (215, 360 + 166 + 3), 
+            "reparacion_bomba": (490, 315 + 166 + 3), "instalacion_bomba": (490, 330 + 166 + 3), "personal": (490, 345 + 166 + 3),
+            "tipo_trabajo_label": (384, 358 + 166 + 3), "tipo_trabajo_valor": (470, 358 + 166 + 3),   "colonia": (50, 403 + 166 + 3),     
+            "calle1": (195, 403 + 166 + 3), "calle2": (365, 403 + 166 + 3), "observaciones": (50, 433 + 166 + 3), 
         },
         {   # Bloque 4 (abajo) – bajado un poco más
-            "dia": (405, 403 + 2*166 + 3),
-            "id": (428, 303 + 2*166 + 3),   
-            "superficie": (215, 315 + 2*166 + 3), 
-            "limpieza": (215, 330 + 2*166 + 3),   
-            "tuberia": (215, 345 + 2*166 + 3),
-            "basura": (215, 360 + 2*166 + 3),    
+            "dia": (405, 403 + 2*166 + 3), "id": (428, 303 + 2*166 + 3), "superficie": (215, 315 + 2*166 + 3), 
+            "limpieza": (215, 330 + 2*166 + 3), "tuberia": (215, 345 + 2*166 + 3), "basura": (215, 360 + 2*166 + 3),    
             "reparacion_bomba": (490, 315 + 2*166 + 3),
             "instalacion_bomba": (490, 330 + 2*166 + 3), 
-            "personal": (490, 345 + 2*166 + 3),  
+            "personal": (490, 345 + 2*166 + 3),
+            "tipo_trabajo_label": (384, 358 + 2*166 + 3),
+            "tipo_trabajo_valor": (470, 358 + 2*166 + 3),  
             "colonia": (50, 403 + 2*166 + 3),   
             "calle1": (195, 403 + 2*166 + 3),    
             "calle2": (365, 403 + 2*166 + 3),    
@@ -884,6 +897,24 @@ def generar_pdf_fuentes_multiple(request, ids):
         page.insert_text(pos["calle1"], reporte.calle1 or "", fontsize=8, color=(0,0,1))
         page.insert_text(pos["calle2"], reporte.calle2 or "", fontsize=8, color=(0,0,1))
         page.insert_text(pos["observaciones"], reporte.observaciones or "", fontsize=8, color=(0,0,1))
+        texto = obtener_tipo_trabajo(reporte)
+
+        page.insert_text(
+            pos["tipo_trabajo_label"],
+            "Tipo de trabajo",
+            fontsize=9,
+            color=(0, 0, 0),
+            fontname="helv",
+            render_mode=2
+        )
+
+        page.insert_text(
+            pos["tipo_trabajo_valor"],
+            texto,
+            fontsize=8,
+            color=(0, 0, 1),
+            fontname="helv"
+        )
 
     buffer = BytesIO()
     doc.save(buffer)
