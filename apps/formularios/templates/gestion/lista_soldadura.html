@@ -10,6 +10,9 @@
             <p class="text-muted mb-0">Gestión y visualización de todos los reportes del sistema</p>
         </div>
         <div>
+            <a href="{% url 'exportar_excel' 'soldadura' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                Descargar Excel
+            </a>
             <a href="{% url 'generar_formato' 'soldadura' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Nuevo Reporte
             </a>
@@ -34,7 +37,6 @@
                             <th >Fecha</th>
                             <th >Día</th>
                             <th >Distrito</th>
-                            <th >Coordinador</th>
                             <th >Encargado</th>
                             <th >Trabajo Realizado</th>
                             <th> Creado Por </th>
@@ -80,7 +82,6 @@
                             <td>{{ reporte.fecha }}</td>
                             <td><span class="badge bg-light text-dark">{{ reporte.dia }}</span></td>
                             <td>{{ reporte.distrito }}</td>
-                            <td>{{ reporte.coordinador }}</td>
                             <td>{{ reporte.encargado }}</td>
                             <td>
                                 <div class="d-flex">

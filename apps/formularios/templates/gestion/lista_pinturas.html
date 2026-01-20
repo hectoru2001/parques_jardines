@@ -10,6 +10,9 @@
             <p class="text-muted mb-0">Gestión y visualización de todos los reportes del sistema</p>
         </div>
         <div>
+            <a href="{% url 'exportar_excel' 'pinturas' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                Descargar Excel
+            </a>
             <a href="{% url 'generar_formato' 'pinturas' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Nuevo Reporte
             </a>
@@ -28,6 +31,7 @@
                 <table class="custom-table">
                     <thead class="">
                         <tr>
+                            <th>Tipo</th>
                             <th ># Reporte</th>
                             <th ># Folio PAC</th>
                             <th >Fecha</th>
@@ -35,9 +39,8 @@
                             <th >Distrito</th>
                             <th >Encargado</th>
                             <th >Trabajo Realizado</th>
-                            <th> Creado Por </th>
+                            <th >Creado Por </th>
                             <th >Estatus</th>
-                            <th> Tipo</th>
                             <th  class="text-center pe-4">Acciones</th>
                         </tr>
                     </thead>

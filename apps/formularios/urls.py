@@ -12,6 +12,9 @@ urlpatterns = [
     path("formulario/<str:tipo_reporte>/editar/<int:pk>/", views.editar_reporte, name="editar_reporte"),
     path('reportes/eliminar/<str:tipo_reporte>/<int:pk>/', views.eliminar_reporte, name='eliminar_reporte'),
     path('<str:tipo_reporte>/<int:pk>/cambiar-estatus/', views.cambiar_estatus, name='cambiar_estatus'),
+    path("reportes/<str:tipo_reporte>/exportar/", views.exportar_excel, name="exportar_excel",
+),
+
 
     #Cuadrillas
     path('reporte/pdf/<int:pk>/', views.generar_pdf_cuadrilla, name='reporte_pdf'),

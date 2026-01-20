@@ -12,17 +12,15 @@ from django.views.decorators.http import require_POST
 from PIL import Image
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
-from django.urls import reverse
 import json
-import fitz  # PyMuPDF
+import fitz
 from io import BytesIO
-from .decoradores import requiere_grupo, es_capturista
+from .decoradores import es_capturista
 import os
 from django.conf import settings
 import base64
-from django.core.files.base import ContentFile
-from django.contrib.auth.models import User
-
+from django.http import HttpResponse
+from openpyxl import Workbook
 from apps.administracion.models import LogSistema
 
 CONFIG_REPORTES = {
@@ -271,6 +269,158 @@ def lista_reportes(request, tipo_reporte):
     }
 
     return render(request, config["template"], context)
+
+@login_required
+def exportar_excel(request, tipo_reporte):
+
+    # Cabeceras que son base en todos los reportes
+    HEADERS_BASE = [
+        "Tipo",
+        "# Reporte",
+        "# Folio PAC",
+        "Fecha",
+        "Día",
+        "Distrito",#
+        "Encargado",
+        "Trabajo Realizado",#
+        "Creado Por",
+        "Estatus",
+    ]
+
+    # Cabceceras en caso de que los tipos de reportes sean fuentes o riego chamizal
+    HEADERS_FUENTES = [h for h in HEADERS_BASE if h not in ("Distrito", "Trabajo Realizado")] + ["Colonia"]
+    HEADERS_RIEGO = [h for h in HEADERS_BASE if h not in ("Tipo", "Distrito", "Trabajo Realizado")] + ["Observaciones"]
+
+    # ---- Validación del tipo de reporte ----
+    if tipo_reporte not in CONFIG_LISTAS:
+        messages.error(request, "Tipo de reporte no válido")
+        return redirect("main")
+
+    config = CONFIG_LISTAS[tipo_reporte]
+    Modelo = config["modelo"]
+
+    # ---- Parámetros GET (idénticos a lista_reportes) ----
+    filtro = request.GET.get("filtro", "all").strip()
+    valor = request.GET.get("query", "").strip()
+    fecha_inicio = request.GET.get("fecha_inicio")
+    fecha_fin = request.GET.get("fecha_fin")
+
+    ordenar_por = request.GET.get("ordenar_por", "fecha")
+    direccion = request.GET.get("direccion", "desc")
+
+    reportes = Modelo.objects.all()
+
+    # ---- FILTROS ----
+    if filtro == "id" and valor.isdigit():
+        reportes = reportes.filter(id=int(valor))
+
+    elif filtro == "folio" and valor:
+        reportes = reportes.filter(folio_pac__icontains=valor)
+
+    elif filtro == "fecha" and fecha_inicio and fecha_fin:
+        reportes = reportes.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    # ---- ORDENAMIENTO ----
+    campos_orden = {
+        "fecha": "fecha",
+        "num_pac": "folio_pac",
+        "numero_reporte": "id",
+    }
+
+    campo = campos_orden.get(ordenar_por, "fecha")
+    if direccion == "desc":
+        campo = "-" + campo
+
+    reportes = reportes.order_by(campo).distinct()
+
+    # ---- CREAR EXCEL ----
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Reportes"
+
+    # Proceso para seleccionar el tipo de cabeceras
+    HEADERS_TIPO = {"fuentes": HEADERS_FUENTES, "riego_chamizal": HEADERS_RIEGO}
+
+    headers = HEADERS_TIPO.get(tipo_reporte, HEADERS_BASE)
+    ws.append(headers)
+
+
+    for r in reportes:
+
+        # Tipo
+        if getattr(r, "trabajo_diario", False):
+            tipo = "Diario"
+        elif getattr(r, "trabajo_ciudadania", False):
+            tipo = "Ciudadanía"
+        elif getattr(r, "operativo_especial", False):
+            tipo = "Especial"
+        else:
+            tipo = ""
+
+        # Estatus
+        if r.estatus == "0":
+            estatus = "Verde"
+        elif r.estatus == "1":
+            estatus = "Rojo"
+        else:
+            estatus = "Desconocido"
+
+        fila = []
+
+        for h in headers:
+            if h == "Tipo":
+                fila.append(tipo)
+
+            elif h == "# Reporte":
+                fila.append(r.id)
+
+            elif h == "# Folio PAC":
+                fila.append(r.folio_pac or "")
+
+            elif h == "Fecha":
+                fila.append(r.fecha.strftime("%Y-%m-%d") if r.fecha else "")
+
+            elif h == "Día":
+                fila.append(r.dia)
+
+            elif h == "Distrito":
+                fila.append(r.distrito)
+
+            elif h == "Encargado":
+                fila.append(
+                    r.encargado_cuadrilla
+                    if hasattr(r, "encargado_cuadrilla")
+                    else r.encargado
+                )
+
+            elif h == "Trabajo Realizado":
+                fila.append(r.trabajo_realizado)
+
+            elif h == "Creado Por":
+                fila.append(r.creado_por.get_full_name() if r.creado_por else "")
+
+            elif h == "Estatus":
+                fila.append(estatus)
+
+            elif h == "Colonia":
+                fila.append(getattr(r, "colonia", ""))
+
+            elif h == "Observaciones":
+                fila.append(getattr(r, "observaciones", ""))
+
+        ws.append(fila)
+
+
+    # ---- RESPUESTA HTTP ----
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = (
+        f'attachment; filename="reportes_{tipo_reporte}.xlsx"'
+    )
+
+    wb.save(response)
+    return response
 
 def modal_reporte(request, tipo_reporte, pk):
     config = CONFIG_REPORTES[tipo_reporte]
