@@ -177,6 +177,7 @@ def generar_formato(request, tipo_reporte):
 
         if form.is_valid():
             reporte = form.save(commit=False)
+            reporte.dia = reporte.fecha.strftime("%A")
             reporte.creado_por = request.user
             reporte.save()
 
@@ -1614,5 +1615,4 @@ def api_guardar_generico(request, form_name):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
 

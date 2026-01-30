@@ -41,20 +41,25 @@ function toggleFecha() {
 function seleccionarDiaAuto() {
     const inputFecha = document.getElementById('id_fecha');
     const selectDia = document.getElementById('id_dia');
-    const valorFecha = inputFecha.value;
 
-    if (!valorFecha) {
+    if (!inputFecha.value) {
         selectDia.value = "";
         return;
     }
 
-    // Crear fecha en UTC
-    const [year, month, day] = valorFecha.split('-').map(Number);
-    const fechaUTC = new Date(Date.UTC(year, month - 1, day));
+    const [year, month, day] = inputFecha.value.split('-').map(Number);
 
-    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-    selectDia.value = dias[fechaUTC.getUTCDay()];
+    // Fecha LOCAL — no usar UTC aquí
+    const fecha = new Date(year, month - 1, day);
+
+    const dias = [
+        "Domingo", "Lunes", "Martes",
+        "Miércoles", "Jueves", "Viernes", "Sábado"
+    ];
+
+    selectDia.value = dias[fecha.getDay()];
 }
+
 
 
 document.addEventListener('DOMContentLoaded', function () {
