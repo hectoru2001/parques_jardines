@@ -6,6 +6,7 @@ from .forms import *
 from .models import *
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -177,7 +178,7 @@ def generar_formato(request, tipo_reporte):
 
         if form.is_valid():
             reporte = form.save(commit=False)
-            reporte.dia = reporte.fecha.strftime("%A")
+            reporte.dia = date_format(reporte.fecha, "l")
             reporte.creado_por = request.user
             reporte.save()
 
