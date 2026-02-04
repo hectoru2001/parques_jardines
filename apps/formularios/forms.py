@@ -431,7 +431,7 @@ class ReporteRiegoChamizalForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
             "dia": forms.TextInput( attrs={"class": "form-control text-muted bg-light", "readonly":True}),
         }
         labels = {

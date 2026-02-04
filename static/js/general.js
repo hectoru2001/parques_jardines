@@ -49,7 +49,6 @@ function seleccionarDiaAuto() {
 
     const [year, month, day] = inputFecha.value.split('-').map(Number);
 
-    // Fecha LOCAL — no usar UTC aquí
     const fecha = new Date(year, month - 1, day);
 
     const dias = [
@@ -71,11 +70,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const esSupervisor = window.ES_SUPERVISOR === "true";
     const inputFecha = document.getElementById("id_fecha");
 
-        if (!inputFecha) return;
+    if (!inputFecha) return;
 
-    // =========================
-    // FECHA (FIX CHROME)
-    // =========================
     const hoyDate = new Date();
     hoyDate.setHours(0, 0, 0, 0);
     const hoy = hoyDate.toISOString().split("T")[0];
@@ -85,30 +81,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let timeout;
 
-        inputFecha.addEventListener("input", function () {
-            clearTimeout(timeout);
+        inputFecha.addEventListener("blur", function () {
+            if (!this.value) return;
 
-            timeout = setTimeout(() => {
-                if (!this.value) return;
+            const partes = this.value.split('-');
+            if (partes[0].length !== 4) return;
 
-                const fechaSeleccionada = new Date(this.value);
+            const y = Number(partes[0]);
+            const m = Number(partes[1]);
+            const d = Number(partes[2]);
 
-                // Chrome dispara eventos con fechas inválidas
-                if (isNaN(fechaSeleccionada)) return;
+            if (!y || !m || !d) return;
 
-                fechaSeleccionada.setHours(0, 0, 0, 0);
+            const fechaSeleccionada = new Date(y, m - 1, d);
 
-                if (fechaSeleccionada < hoyDate) {
-                    showModal("La fecha no puede ser anterior a hoy.");
-                    this.value = hoy;
-                    return;
-                }
+            fechaSeleccionada.setHours(0, 0, 0, 0);
 
-                // ✅ Solo cuando la fecha es válida
-                seleccionarDiaAuto();
+            if (fechaSeleccionada < hoyDate) {
+                showModal("La fecha no puede ser anterior a hoy.");
+                this.value = hoy;
+                return;
+            }
 
-            }, 120);
+            seleccionarDiaAuto();
         });
+
+
+
     }
 
     toggleFecha();
