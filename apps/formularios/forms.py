@@ -70,7 +70,7 @@ class ReporteCuadrillaForm(FormControlMixin,forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones_parque": forms.Textarea(attrs={"rows": 3}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
@@ -139,7 +139,7 @@ class ReporteChamizalForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
@@ -203,7 +203,7 @@ class ReporteCulturaForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 8}),
 
@@ -230,7 +230,7 @@ class ReporteFuentesForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
@@ -289,7 +289,7 @@ class ReporteFugasForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
@@ -355,7 +355,7 @@ class ReportePinturasForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
@@ -461,7 +461,7 @@ class ReporteRiegoPipasForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "hora_salida": forms.TimeInput(attrs={"type": "time"}),
             "hora_regreso": forms.TimeInput(attrs={"type": "time"}),
@@ -491,7 +491,7 @@ class ReporteSoldaduraForm(FormControlMixin, forms.ModelForm):
         fields = "__all__"
         exclude = ['creado_por', 'estatus']
         widgets = {
-            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date", "onchange":"seleccionarDiaAuto()"}),
+            "fecha": forms.DateInput(format='%Y-%m-%d', attrs={"type": "date"}),
 
             "observaciones": forms.Textarea(attrs={"rows": 5}),
             "otras_observaciones": forms.Textarea(attrs={"rows": 3}),
