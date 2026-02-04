@@ -71,24 +71,48 @@ document.addEventListener('DOMContentLoaded', function () {
     const esSupervisor = window.ES_SUPERVISOR === "true";
     const inputFecha = document.getElementById("id_fecha");
 
-    if (!inputFecha) return;
+        if (!inputFecha) return;
 
-    const hoy = new Date().toISOString().split("T")[0];
+    // =========================
+    // FECHA (FIX CHROME)
+    // =========================
+    const hoyDate = new Date();
+    hoyDate.setHours(0, 0, 0, 0);
+    const hoy = hoyDate.toISOString().split("T")[0];
 
     if (!esSupervisor) {
-        inputFecha.setAttribute("min", hoy);
+        inputFecha.min = hoy;
 
-        inputFecha.addEventListener("change", function () {
-            if (this.value < hoy) {
-                showModal("La fecha no puede ser anterior a hoy.");
-                this.value = hoy;
-            }
+        let timeout;
+
+        inputFecha.addEventListener("input", function () {
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                if (!this.value) return;
+
+                const fechaSeleccionada = new Date(this.value);
+
+                // Chrome dispara eventos con fechas inválidas
+                if (isNaN(fechaSeleccionada)) return;
+
+                fechaSeleccionada.setHours(0, 0, 0, 0);
+
+                if (fechaSeleccionada < hoyDate) {
+                    showModal("La fecha no puede ser anterior a hoy.");
+                    this.value = hoy;
+                    return;
+                }
+
+                // ✅ Solo cuando la fecha es válida
+                seleccionarDiaAuto();
+
+            }, 120);
         });
     }
 
-
     toggleFecha();
-    seleccionarDiaAuto();
+
 
     if (formulario) {
         formulario.addEventListener('submit', function (e) {
