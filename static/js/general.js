@@ -76,39 +76,39 @@ document.addEventListener('DOMContentLoaded', function () {
     hoyDate.setHours(0, 0, 0, 0);
     const hoy = hoyDate.toISOString().split("T")[0];
 
+    // 1. RESTRICCIÓN VISUAL: Solo si NO es supervisor, bloqueamos los días pasados en el calendario
     if (!esSupervisor) {
         inputFecha.min = hoy;
+    }
 
-        let timeout;
+    // 2. EVENTO PARA TODOS: El listener debe estar afuera para que el Supervisor también dispare 'seleccionarDiaAuto'
+    inputFecha.addEventListener("blur", function () {
+        if (!this.value) return;
 
-        inputFecha.addEventListener("blur", function () {
-            if (!this.value) return;
+        const partes = this.value.split('-');
+        if (partes[0].length !== 4) return;
 
-            const partes = this.value.split('-');
-            if (partes[0].length !== 4) return;
+        const y = Number(partes[0]);
+        const m = Number(partes[1]);
+        const d = Number(partes[2]);
 
-            const y = Number(partes[0]);
-            const m = Number(partes[1]);
-            const d = Number(partes[2]);
+        if (!y || !m || !d) return;
 
-            if (!y || !m || !d) return;
+        const fechaSeleccionada = new Date(y, m - 1, d);
+        fechaSeleccionada.setHours(0, 0, 0, 0);
 
-            const fechaSeleccionada = new Date(y, m - 1, d);
-
-            fechaSeleccionada.setHours(0, 0, 0, 0);
-
+        // 3. VALIDACIÓN LÓGICA: Solo validamos "fecha anterior" si NO es supervisor
+        if (!esSupervisor) {
             if (fechaSeleccionada < hoyDate) {
                 showModal("La fecha no puede ser anterior a hoy.");
                 this.value = hoy;
                 return;
             }
+        }
 
-            seleccionarDiaAuto();
-        });
-
-
-
-    }
+        // 4. ACCIÓN FINAL: Se ejecuta para ambos (Supervisor y Usuario)
+        seleccionarDiaAuto();
+    });
 
     toggleFecha();
 
