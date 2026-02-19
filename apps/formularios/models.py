@@ -180,7 +180,7 @@ class ReporteCultura(ReportesBase):
     estatus = models.CharField(max_length=1, choices=ESTATUS, default='0')
 
 class ReporteFuentes(ReportesBase):
-    folio_pac = models.IntegerField()
+    folio_pac = models.IntegerField(blank=True, null=True)
 
     trabajo_diario = models.BooleanField(default=False)
     trabajo_ciudadania = models.BooleanField(default=False)
