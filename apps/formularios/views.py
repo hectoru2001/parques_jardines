@@ -10,7 +10,7 @@ from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from PIL import Image
+from PIL import Image, ImageOps
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
 import json
@@ -23,6 +23,7 @@ import base64
 from django.http import HttpResponse
 from openpyxl import Workbook
 from apps.administracion.models import LogSistema
+from pillow_heif import register_heif_opener
 
 CONFIG_REPORTES = {
         "cuadrilla": {
@@ -137,6 +138,8 @@ def generar_formato(request, tipo_reporte):
 
     if request.method == "POST":
 
+        register_heif_opener()
+
         # ==========================================================
         # PROCESAR IMÁGENES
         # ==========================================================
@@ -144,15 +147,30 @@ def generar_formato(request, tipo_reporte):
 
         for field_name, file in request.FILES.items():
             try:
+                # Validar tamaño máximo (ej: 10MB)
+                if file.size > 10 * 1024 * 1024:
+                    raise ValueError("Imagen demasiado grande")
+
                 img = Image.open(file)
 
-                if img.mode not in ("RGB", "L"):
+                # Corrige orientación iPhone
+                img = ImageOps.exif_transpose(img)
+
+                # Convertir a RGB siempre
+                if img.mode != "RGB":
                     img = img.convert("RGB")
 
+                # Redimensionar manteniendo proporción
                 img.thumbnail((1600, 1600), Image.LANCZOS)
 
                 buffer = BytesIO()
-                img.save(buffer, format="JPEG", optimize=True, quality=70)
+                img.save(
+                    buffer,
+                    format="JPEG",
+                    optimize=True,
+                    quality=75,
+                    progressive=True
+                )
 
                 new_files[field_name] = ContentFile(
                     buffer.getvalue(),
@@ -162,17 +180,11 @@ def generar_formato(request, tipo_reporte):
             except Exception as e:
                 LogSistema.objects.create(
                     usuario=request.user,
-                    accion=f"⚠ Error procesando imagen '{field_name}': {e}"
+                    accion=f"Error procesando imagen '{field_name}': {e}"
                 )
 
-                fallback = Image.new("RGB", (20, 20), (255, 255, 255))
-                fb_buffer = BytesIO()
-                fallback.save(fb_buffer, format="JPEG", quality=60)
-
-                new_files[field_name] = ContentFile(
-                    fb_buffer.getvalue(),
-                    name=f"{field_name}_fallback.jpg"
-                )
+                messages.error(request, f"Error en imagen {field_name}")
+                return redirect(request.path)
 
         form = config["form_class"](request.POST, new_files)
 
@@ -524,6 +536,9 @@ def editar_reporte(request, tipo_reporte, pk):
 
     if request.method == "POST":
 
+        register_heif_opener()
+
+
         # ==========================================================
         # PROCESAR SOLO LOS ARCHIVOS NUEVOS
         # ==========================================================
@@ -531,16 +546,39 @@ def editar_reporte(request, tipo_reporte, pk):
 
         for field_name, file in request.FILES.items():
             try:
+                # 🔒 Limitar tamaño (10MB)
+                if file.size > 10 * 1024 * 1024:
+                    raise ValueError("Imagen demasiado grande")
+
+                file.seek(0)  # 🔁 Asegurar puntero al inicio
                 img = Image.open(file)
 
-                if img.mode in ("RGBA", "P"):
+                # 📱 Corrige rotación iPhone (seguro)
+                try:
+                    img = ImageOps.exif_transpose(img)
+                except Exception:
+                    pass
+
+                # 🎨 Forzar RGB
+                if img.mode != "RGB":
                     img = img.convert("RGB")
 
-                max_size = (1600, 1600)
-                img.thumbnail(max_size)
+                # 📏 Redimensionar
+                img.thumbnail((1600, 1600), Image.LANCZOS)
 
                 img_io = BytesIO()
-                img.save(img_io, format="JPEG", optimize=True, quality=70)
+                img.save(
+                    img_io,
+                    format="JPEG",
+                    optimize=True,
+                    quality=75,
+                    progressive=True
+                )
+
+                # 🗑️ Eliminar imagen anterior SOLO si existe y es FileField
+                old_file = getattr(reporte, field_name, None)
+                if old_file and hasattr(old_file, "delete"):
+                    old_file.delete(save=False)
 
                 processed_files[field_name] = ContentFile(
                     img_io.getvalue(),
@@ -548,17 +586,14 @@ def editar_reporte(request, tipo_reporte, pk):
                 )
 
             except Exception as e:
-                print(f"⚠ Error procesando {field_name}: {e}")
-
-                # fallback seguro
-                fallback = Image.new("RGB", (20, 20), (255, 255, 255))
-                fb_io = BytesIO()
-                fallback.save(fb_io, format="JPEG", quality=60)
-
-                processed_files[field_name] = ContentFile(
-                    fb_io.getvalue(),
-                    name=f"{field_name}_fallback.jpg"
+                LogSistema.objects.create(
+                    usuario=request.user,
+                    accion=f"Error procesando imagen '{field_name}' en edición: {str(e)}"
                 )
+
+                messages.error(request, f"Error en imagen {field_name}")
+                print("ERROR REAL:", repr(e))
+                return redirect(request.path)
 
 
         post_data = request.POST.copy()

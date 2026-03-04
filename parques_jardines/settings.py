@@ -15,7 +15,7 @@ SECRET_KEY = '_61-pJgQMEV6rPL7JI_O758wTIh3SqCjNwTMGrr1fSvfBLI9fV8xjqkOGO59suQyel
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-BDD_PRUEBA = False
+BDD_PRUEBA = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.62.93', 'reportespyj.juarez.gob.mx', 'reportespyj.gobjuarez.mpio']
 
