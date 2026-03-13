@@ -147,28 +147,35 @@ def generar_formato(request, tipo_reporte):
 
         for field_name, file in request.FILES.items():
             try:
-                # Validar tamaño máximo (ej: 10MB)
-                if file.size > 10 * 1024 * 1024:
-                    raise ValueError("Imagen demasiado grande")
-
+                file.seek(0)
                 img = Image.open(file)
 
-                # Corrige orientación iPhone
+                # corregir orientación iphone
                 img = ImageOps.exif_transpose(img)
 
-                # Convertir a RGB siempre
+                # convertir a RGB
                 if img.mode != "RGB":
                     img = img.convert("RGB")
 
-                # Redimensionar manteniendo proporción
+                # limitar resolución máxima
                 img.thumbnail((1600, 1600), Image.LANCZOS)
 
                 buffer = BytesIO()
+
+                # calidad inicial
+                quality = 75
+
+                # si la imagen original es grande, bajar más la calidad
+                if file.size > 8 * 1024 * 1024:
+                    quality = 60
+                if file.size > 15 * 1024 * 1024:
+                    quality = 50
+
                 img.save(
                     buffer,
                     format="JPEG",
                     optimize=True,
-                    quality=75,
+                    quality=quality,
                     progressive=True
                 )
 
@@ -546,36 +553,40 @@ def editar_reporte(request, tipo_reporte, pk):
 
         for field_name, file in request.FILES.items():
             try:
-                # 🔒 Limitar tamaño (10MB)
-                if file.size > 10 * 1024 * 1024:
-                    raise ValueError("Imagen demasiado grande")
-
-                file.seek(0)  # 🔁 Asegurar puntero al inicio
+                file.seek(0)
                 img = Image.open(file)
 
-                # 📱 Corrige rotación iPhone (seguro)
+                # corregir rotación iphone
                 try:
                     img = ImageOps.exif_transpose(img)
                 except Exception:
                     pass
 
-                # 🎨 Forzar RGB
+                # convertir a RGB
                 if img.mode != "RGB":
                     img = img.convert("RGB")
 
-                # 📏 Redimensionar
+                # reducir resolución máxima
                 img.thumbnail((1600, 1600), Image.LANCZOS)
 
                 img_io = BytesIO()
+
+                # compresión dinámica según tamaño
+                quality = 75
+                if file.size > 8 * 1024 * 1024:
+                    quality = 60
+                if file.size > 15 * 1024 * 1024:
+                    quality = 50
+
                 img.save(
                     img_io,
                     format="JPEG",
                     optimize=True,
-                    quality=75,
+                    quality=quality,
                     progressive=True
                 )
 
-                # 🗑️ Eliminar imagen anterior SOLO si existe y es FileField
+                # eliminar imagen anterior
                 old_file = getattr(reporte, field_name, None)
                 if old_file and hasattr(old_file, "delete"):
                     old_file.delete(save=False)
